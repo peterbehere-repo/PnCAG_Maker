@@ -23,6 +23,35 @@ func _ready() -> void:
 	_panel.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
 	_panel.visible = true
 	add_child(_panel)
+	_create_audio_gate()
+
+## Chrome/Windows autoplay policy: no audio until the first user gesture.
+## A full-screen button guarantees a real gesture and unlocks the audio context.
+func _create_audio_gate() -> void:
+	var btn := Button.new()
+	btn.name = "AudioGate"
+	btn.set_anchors_preset(Control.PRESET_FULL_RECT)
+	btn.text = ""
+	btn.flat = true
+	btn.mouse_default_cursor_shape = Control.CURSOR_ARROW
+	# start fully transparent so the game is visible behind it
+	btn.modulate = Color(1, 1, 1, 0.02)
+	btn.pressed.connect(func() -> void:
+		print("[DBG] audio gate clicked")
+		_unlock_audio_now()
+		btn.queue_free()
+	)
+	add_child(btn)
+	print("[DBG] audio gate created")
+
+func _unlock_audio_now() -> void:
+	print("[DBG] audio unlock now")
+	if A:
+		if not A.is_playing_cue("ambience_study"):
+			A.ambience_study.play()
+			print("[DBG] ambience started; playing=", A.is_playing_cue("ambience_study"))
+		else:
+			print("[DBG] ambience already playing")
 
 var _audio_unlocked := false
 
@@ -48,14 +77,6 @@ func _input(event: InputEvent) -> void:
 		visible = not visible
 		print("[DBG] overlay toggled: %s" % visible)
 
-func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.pressed:
-		_room_handled = "saw-unhandled btn%d" % event.button_index
-		print("[DBG] unhandled saw click btn%d hovered=%s" % [event.button_index, E.hovered.script_name if E and E.hovered else "none"])
-		_update()
-	if event is InputEventKey and event.pressed and event.keycode == KEY_QUOTELEFT:
-		visible = not visible
-		print("[DBG] overlay toggled (unhandled): %s" % visible)
 
 func _process(_delta: float) -> void:
 	_update()
