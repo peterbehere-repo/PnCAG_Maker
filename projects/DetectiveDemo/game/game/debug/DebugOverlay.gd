@@ -140,8 +140,8 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
 		match event.keycode:
 			KEY_QUOTELEFT:
-				visible = not visible
-				print("[DBG] overlay all: %s" % visible)
+				_panel.visible = not _panel.visible
+				print("[DBG] debug panel: %s" % _panel.visible)
 			KEY_1:
 				DebugOverlay.show_walkable = not DebugOverlay.show_walkable
 				print("[DBG] walkable overlay: %s" % DebugOverlay.show_walkable)
@@ -170,7 +170,7 @@ func _collect() -> Array:
 	if FileAccess.file_exists("res://game/debug/build_id.txt"):
 		bid = FileAccess.get_file_as_string("res://game/debug/build_id.txt").strip_edges()
 	l.append("build: %s" % bid)
-	l.append("toggles  [`]all [1]walk [2]props [3]hot [4]names")
+	l.append("toggles  [`]panel [1]walk [2]props [3]hot [4]names")
 	l.append("show: W=%s P=%s H=%s N=%s" % [DebugOverlay.show_walkable, DebugOverlay.show_props, DebugOverlay.show_hotspots, DebugOverlay.show_labels])
 	if R:
 		var room = R.current
