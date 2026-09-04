@@ -34,10 +34,13 @@ func _create_audio_gate() -> void:
 	btn.text = ""
 	btn.flat = true
 	btn.mouse_default_cursor_shape = Control.CURSOR_ARROW
+	# Fire on RELEASE: Chrome unlocks the AudioContext on pointerup, so the
+	# restart must happen after release, not on press-down.
+	btn.action_mode = BaseButton.ACTION_MODE_BUTTON_RELEASE
 	# start fully transparent so the game is visible behind it
 	btn.modulate = Color(1, 1, 1, 0.02)
 	btn.pressed.connect(func() -> void:
-		print("[DBG] audio gate clicked")
+		print("[DBG] audio gate clicked (release)")
 		_unlock_audio_now()
 		btn.queue_free()
 	)
@@ -55,8 +58,20 @@ func _unlock_audio_now() -> void:
 			PopochiuUtils.e.am.stop("ambience_study")
 			print("[DBG] stopped trapped ambience")
 		A.ambience_study.play()
-		await get_tree().create_timer(0.2).timeout
-		print("[DBG] ambience restarted; playing=", A.is_playing_cue("ambience_study"))
+		# Chrome actually resumes the context on pointerup which lands moments
+		# AFTER this handler; re-attach the stream twice more so at least one
+		# attach lands after the context is truly running.
+		_restart_ambience_later()
+
+func _restart_ambience_later() -> void:
+	for delay in [0.6, 1.6]:
+		await get_tree().create_timer(delay).timeout
+		if not A:
+			return
+		if PopochiuUtils and PopochiuUtils.e and PopochiuUtils.e.am:
+			PopochiuUtils.e.am.stop("ambience_study")
+		A.ambience_study.play()
+		print("[DBG] ambience re-attach +%.1fs; playing=%s" % [delay, A.is_playing_cue("ambience_study")])
 
 var _audio_unlocked := false
 
