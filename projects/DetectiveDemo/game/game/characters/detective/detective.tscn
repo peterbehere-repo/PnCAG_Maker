@@ -1,22 +1,23 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
-[ext_resource type="Script" uid="uid://tm1nwuvn5r67" path="res://addons/popochiu/engine/objects/character/popochiu_character.gd" id="1_ch"]
-[ext_resource type="Script" path="res://game/characters/detective/detective.gd" id="2_ch"]
+[ext_resource type="Script" path="res://game/characters/detective/detective.gd" id="1_ch"]
+[ext_resource type="Texture2D" path="res://assets/sprites/detective.png" id="2_tex"]
 
 [node name="Detective" type="Area2D"]
 script = ExtResource("1_ch")
-script = ExtResource("2_ch")
 script_name = "detective"
 character_name = "Detective"
 
-[node name="ScalingPolygon" type="CollisionPolygon2D" parent="."]
-
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-
 [node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_tex")
 
 [node name="InteractionPolygon" type="CollisionPolygon2D" parent="."]
-visible = false
+polygon = PackedVector2Array(-50, 210, -50, -210, 50, -210, 50, 210)
 
-[node name="ObstaclePolygon" type="NavigationObstacle2D" parent="."]
-visible = false
+[node name="ScalingPolygon" type="CollisionPolygon2D" parent="."]
+polygon = PackedVector2Array(-50, 210, -50, -210, 50, -210, 50, 210)
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
+polygon = PackedVector2Array(-40, 210, -40, -210, 40, -210, 40, 210)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
