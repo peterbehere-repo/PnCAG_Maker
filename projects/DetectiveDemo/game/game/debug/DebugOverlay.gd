@@ -47,11 +47,16 @@ func _create_audio_gate() -> void:
 func _unlock_audio_now() -> void:
 	print("[DBG] audio unlock now")
 	if A:
-		if not A.is_playing_cue("ambience_study"):
-			A.ambience_study.play()
-			print("[DBG] ambience started; playing=", A.is_playing_cue("ambience_study"))
-		else:
-			print("[DBG] ambience already playing")
+		# Kill the cue that was started at room-entry (it's trapped in Chrome's
+		# suspended AudioContext -> "playing" but silent). Stop removes it from
+		# the manager's _active map, so the next play() attaches a fresh stream
+		# while the context is now unlocked by the user gesture.
+		if PopochiuUtils and PopochiuUtils.e and PopochiuUtils.e.am:
+			PopochiuUtils.e.am.stop("ambience_study")
+			print("[DBG] stopped trapped ambience")
+		A.ambience_study.play()
+		await get_tree().create_timer(0.2).timeout
+		print("[DBG] ambience restarted; playing=", A.is_playing_cue("ambience_study"))
 
 var _audio_unlocked := false
 
@@ -61,10 +66,7 @@ func _unlock_audio(_e: InputEvent) -> void:
 		return
 	_audio_unlocked = true
 	print("[DBG] audio unlock on first gesture")
-	if A:
-		if not A.is_playing_cue("ambience_study"):
-			A.ambience_study.play()
-			print("[DBG] ambience started after unlock; playing=", A.is_playing_cue("ambience_study"))
+	_unlock_audio_now()
 
 func _input(event: InputEvent) -> void:
 	_unlock_audio(event)
