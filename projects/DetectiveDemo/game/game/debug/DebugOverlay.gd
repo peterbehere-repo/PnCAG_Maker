@@ -32,6 +32,10 @@ func _process(_delta: float) -> void:
 func _collect() -> Array:
 	var l: Array = []
 	l.append("=== POPOCHIU DEBUG ===")
+	var bid := "dev"
+	if FileAccess.file_exists("res://game/debug/build_id.txt"):
+		bid = FileAccess.get_file_as_string("res://game/debug/build_id.txt").strip_edges()
+	l.append("build: %s" % bid)
 	if R:
 		var room = R.current
 		l.append("room: %s" % (room.script_name if room else "NO ROOM"))
