@@ -2,6 +2,9 @@ extends CanvasLayer
 
 var _lines: Array = []
 var _last_click := "none"
+var _click_count := 0
+var _room_handled := "?"
+var _key_state := "?"
 var _panel: RichTextLabel
 var _area_drawer: Control = null
 
@@ -21,10 +24,38 @@ func _ready() -> void:
 	_panel.visible = true
 	add_child(_panel)
 
+var _audio_unlocked := false
+
+## Browsers block audio until the first user gesture; play any pending cue after it.
+func _unlock_audio(_e: InputEvent) -> void:
+	if _audio_unlocked:
+		return
+	_audio_unlocked = true
+	print("[DBG] audio unlock on first gesture")
+	if A:
+		if not A.is_playing_cue("ambience_study"):
+			A.ambience_study.play()
+			print("[DBG] ambience started after unlock; playing=", A.is_playing_cue("ambience_study"))
+
 func _input(event: InputEvent) -> void:
+	_unlock_audio(event)
 	if event is InputEventMouseButton and event.pressed:
 		_last_click = "(%d, %d) btn%d" % [event.position.x, event.position.y, event.button_index]
+		_click_count += 1
+		print("[DBG] click %d at (%d, %d) btn%d hovered=%s" % [_click_count, event.position.x, event.position.y, event.button_index, E.hovered.script_name if E and E.hovered else "none"])
 		_update()
+	if event is InputEventKey and event.pressed and event.keycode == KEY_QUOTELEFT:
+		visible = not visible
+		print("[DBG] overlay toggled: %s" % visible)
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed:
+		_room_handled = "saw-unhandled btn%d" % event.button_index
+		print("[DBG] unhandled saw click btn%d hovered=%s" % [event.button_index, E.hovered.script_name if E and E.hovered else "none"])
+		_update()
+	if event is InputEventKey and event.pressed and event.keycode == KEY_QUOTELEFT:
+		visible = not visible
+		print("[DBG] overlay toggled (unhandled): %s" % visible)
 
 func _process(_delta: float) -> void:
 	_update()
@@ -43,6 +74,9 @@ func _collect() -> Array:
 			l.append("walkable areas: %d" % room.get_walkable_areas().size())
 			var wa = room.get_active_walkable_area()
 			l.append("active WA: %s" % (wa.name if wa else "NONE"))
+			l.append("room is_current: %s" % room.is_current)
+			l.append("room proc_uh: %s" % room.is_processing_unhandled_input())
+			l.append("gui blocked: %s" % (G.is_blocked if G else "?"))
 	else:
 		l.append("room: R missing")
 	l.append("props group: %d" % get_tree().get_nodes_in_group("props").size())
@@ -56,6 +90,8 @@ func _collect() -> Array:
 	l.append("ambience: loaded=%s playing=%s" % [A.ambience_study != null, A.is_playing_cue("ambience_study") if A else false])
 	l.append("key in inv: %s" % (I.is_item_in_inventory("brass_key") if I else false))
 	l.append("last click: %s" % _last_click)
+	l.append("click count: %d" % _click_count)
+	l.append("room unhandled: %s" % _room_handled)
 	return l
 
 func _update() -> void:
