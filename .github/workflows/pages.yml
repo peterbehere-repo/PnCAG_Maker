@@ -21,30 +21,34 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-      - name: Configure Pages
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
         uses: actions/configure-pages@v5
-      - name: Build pages content
+
+      - name: Build site
+        shell: bash
         run: |
-          rm -rf _site
-          mkdir -p _site
+          set -euxo pipefail
+          rm -rf _site && mkdir -p _site
           for d in projects/*/build/web; do
-            game=$(basename $(dirname $(dirname $d)))
+            [ -d "$d" ] || continue
+            game="$(basename "$(dirname "$(dirname "$d")")")"
             mkdir -p "_site/$game"
             cp -r "$d/." "_site/$game/"
-          done
-          for g in _site/*/; do
-            g=${g%/}
-            newest=$(ls -1 "$g"/game-*.html 2>/dev/null | sort -V | tail -1)
+            newest="$(ls -1 "$d"/game-*.html 2>/dev/null | sort -V | tail -1 || true)"
             if [ -n "$newest" ]; then
-              bn=$(basename "$newest")
-              printf '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=./%s"><link rel="canonical" href="./%s"></head><body><a href="./%s">Open game</a></body></html>\n' "$bn" "$bn" "$bn" > "$g/index.html"
+              bn="$(basename "$newest")"
+              printf '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=./%s"><link rel="canonical" href="./%s"></head><body><a href="./%s">Open game</a></body></html>\n' "$bn" "$bn" "$bn" > "_site/$game/index.html"
             fi
           done
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: _site
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
