@@ -1,7 +1,13 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://game/rooms/study/room_study.gd" id="1_room"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/detective_study.png" id="2_bg"]
+[ext_resource type="PackedScene" path="res://game/props/desk/desk.tscn" id="3_desk"]
+[ext_resource type="PackedScene" path="res://game/hotspots/window/window.tscn" id="4_window"]
+[ext_resource type="Script" path="res://addons/popochiu/engine/objects/walkable_area/popochiu_walkable_area.gd" id="5_wa"]
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_floor"]
+vertices = PackedVector2Array(130, 690, 1790, 690, 1790, 1060, 130, 1060)
+polygons = [PackedInt32Array(0, 1, 2, 3)]
 
 [node name="Study" type="Node2D"]
 script = ExtResource("1_room")
@@ -14,9 +20,25 @@ texture = ExtResource("2_bg")
 
 [node name="WalkableAreas" type="Node2D" parent="."]
 
+[node name="WalkableArea" type="Node2D" parent="WalkableAreas"]
+script = ExtResource("5_wa")
+script_name = "StudyFloor"
+interaction_polygon_position = Vector2(0, 0)
+interaction_polygon = PackedVector2Array(130, 690, 1790, 690, 1790, 1060, 130, 1060)
+
+[node name="Perimeter" type="NavigationRegion2D" parent="WalkableAreas/WalkableArea"]
+visible = false
+navigation_polygon = SubResource("NavigationPolygon_floor")
+
 [node name="Props" type="Node2D" parent="."]
 
+[node name="Desk" parent="Props" instance=ExtResource("3_desk")]
+position = Vector2(900, 780)
+
 [node name="Hotspots" type="Node2D" parent="."]
+
+[node name="Window" parent="Hotspots" instance=ExtResource("4_window")]
+position = Vector2(360, 420)
 
 [node name="Regions" type="Node2D" parent="."]
 

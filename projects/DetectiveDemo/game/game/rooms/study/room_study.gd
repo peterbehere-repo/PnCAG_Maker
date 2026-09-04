@@ -13,6 +13,9 @@ func _on_room_entered() -> void:
 	if detective:
 		detective.position = Vector2(900, 780)
 		detective.face_left()
+	# Start the ambience loop
+	if not A.is_playing_cue("ambience_study"):
+		A.ambience_study.play()
 
 
 func _on_room_transition_finished() -> void:
