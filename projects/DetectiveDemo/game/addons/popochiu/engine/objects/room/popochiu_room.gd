@@ -31,6 +31,8 @@ extends Node2D
 var is_current := false: set = set_is_current
 
 var _nav_path: PopochiuWalkableArea = null
+# [M3] One-shot guard so the polygon-format validator runs once per room entry.
+var _polyfmt_checked := false
 # Stores the children defined in the Editor's Scene tree for each character inside $Characters to
 # add them to the corresponding PopochiuCharacter instance when the room is loaded in runtime.
 var _characters_children := {}
@@ -93,18 +95,26 @@ func _ready():
 
 
 func _process(_delta: float):
+	# [M3] Validate polygon serialization once per room entry (cheap, logs only).
+	if not _polyfmt_checked:
+		_polyfmt_checked = true
+		_validate_polygon_formats()
 	# [FIX-web] Manual hover fallback: physics picking never sets `hovered` in
 	# web exports, so compute it from the mouse position every frame.
 	if is_current and not PopochiuUtils.g.is_blocked:
 		var mouse := get_local_mouse_position()
 		var picked: Variant = _manual_pick_clickable(mouse)
-		var cur = PopochiuUtils.e.hovered
+		var cur: Variant = PopochiuUtils.e.hovered
 		if picked != cur:
 			if is_instance_valid(cur) and cur != picked:
 				cur._on_mouse_exited()
 			if picked:
 				picked._on_mouse_entered()
 			PopochiuUtils.e.hovered = picked
+		# [M1] Floor hover affordance (walkable area under cursor). Does not touch
+		# E.hovered (that must stay PopochiuClickable) — just signals the cursor via
+		# a lightweight flag the GUI can read on web exports.
+		PopochiuUtils.e.floor_hovered = _manual_pick_walkable(mouse) != null if picked == null else false
 
 func _unhandled_input(event: InputEvent):
 	# [DBG-WALK] instrumented
@@ -388,6 +398,22 @@ func get_regions() -> Array:
 ## (Area2D input_event / mouse_entered) doesn't reach clickables. Tests the
 ## room-space [param pos] against every active prop/hotspot interaction
 ## polygon and returns the topmost hit (props over hotspots).
+func _validate_polygon_formats() -> void:
+	# [M3] Props/hotspots expect flat PackedVector2Array; walkables expect nested
+	# Array[PackedVector2Array]. Warn loudly if a scene stores the wrong form so
+	# designers catch it before it silently empties at runtime.
+	for node in get_tree().get_nodes_in_group("props") + get_tree().get_nodes_in_group("hotspots"):
+		if node != null and "interaction_polygon" in node:
+			var ip = node.get("interaction_polygon")
+			if ip is Array:
+				push_warning("[M3] %s stores nested interaction_polygon; props/hotspots expect flat PackedVector2Array." % node.name)
+	for wa in get_walkable_areas():
+		if wa != null and "interaction_polygon" in wa:
+			var wip = wa.get("interaction_polygon")
+			if wip is PackedVector2Array:
+				push_warning("[M3] %s stores flat interaction_polygon; walkable expects nested Array[PackedVector2Array]." % wa.name)
+
+
 func _manual_pick_clickable(pos: Vector2):
 	var hit = null
 	for group in ["props", "hotspots"]:
@@ -402,26 +428,91 @@ func _manual_pick_clickable(pos: Vector2):
 	return hit
 
 
+## [FIX-web] Returns the walkable area (if any) whose interaction polygon contains [param pos].
+## Used for floor hover / walk affordance on web where physics picking is unreliable.
+func _manual_pick_walkable(pos: Vector2) -> PopochiuWalkableArea:
+	for wa in get_walkable_areas():
+		if wa == null or not wa.visible:
+			continue
+		var origin: Vector2 = wa.global_position + wa.interaction_polygon_position
+		var outlines: Array = wa.interaction_polygon
+		for i in range(outlines.size()):
+			var outline: PackedVector2Array = outlines[i]
+			if outline.size() > 2:
+				var world := PackedVector2Array()
+				for p: Vector2 in outline:
+					world.append(origin + p)
+				if Geometry2D.is_point_in_polygon(pos, world):
+					return wa
+	return null
+
+
 ## Returns the interaction polygon of a clickable in room-local coordinates.
+## [FIX-web] M2: now transform-aware — accumulates transforms through the whole
+## child hierarchy and honors the canonical `interaction_polygon` export when present.
 func _clickable_polygon(node):
 	var poly := PackedVector2Array()
+	# Canonical source: exported interaction polygon (flat or nested).
+	if "interaction_polygon" in node and node.get("interaction_polygon") != null:
+		var ip = node.get("interaction_polygon")
+		var base := Vector2.ZERO
+		if "interaction_polygon_position" in node:
+			base = node.get("interaction_polygon_position")
+		if ip is Array:
+			for outline in ip:
+				if outline is PackedVector2Array and outline.size() > 2:
+					var world_pts := PackedVector2Array()
+					for p in outline:
+						world_pts.append(_accumulate_transform(node, base + p))
+					# First non-empty outline wins (highest priority).
+					return world_pts
+		elif ip is PackedVector2Array and ip.size() > 2:
+			var world_pts2 := PackedVector2Array()
+			for p in ip:
+				world_pts2.append(_accumulate_transform(node, base + p))
+			return world_pts2
+
+	# Fallback: first collision polygon / shape found, transform-accumulated.
 	for child in node.get_children():
-		if child is CollisionPolygon2D:
-			for p in child.polygon:
-				poly.append(node.position + child.position + p)
-			break
-	if poly.is_empty():
-		# Fallback: use the clickable's own rect.
-		var rect := Rect2()
-		for child in node.get_children():
-			if child is CollisionShape2D and child.shape:
-				var r: Rect2 = child.shape.get_rect()
-				poly.append(node.position + child.position + r.position)
-				poly.append(node.position + child.position + r.position + Vector2(r.size.x, 0))
-				poly.append(node.position + child.position + r.position + r.size)
-				poly.append(node.position + child.position + r.position + Vector2(0, r.size.y))
-				break
+		var pts := _collect_shape_points(child)
+		if pts.size() > 2:
+			var world := PackedVector2Array()
+			for p in pts:
+				world.append(_accumulate_transform(child, p))
+			return world
 	return poly
+
+
+## Recursively collects collision polygon/rect points from [param n] (and its children)
+## in the coordinate space of the top-level clickable node.
+func _collect_shape_points(n: Node2D) -> PackedVector2Array:
+	if n is CollisionPolygon2D and n.polygon.size() > 2:
+		return n.polygon
+	if n is CollisionShape2D and n.shape:
+		if n.shape is RectangleShape2D:
+			var r: Rect2 = n.shape.get_rect()
+			return PackedVector2Array([
+				r.position, r.position + Vector2(r.size.x, 0),
+				r.position + r.size, r.position + Vector2(0, r.size.y)
+			])
+	for child in n.get_children():
+		if child is Node2D:
+			var sub := _collect_shape_points(child)
+			if sub.size() > 2:
+				return sub
+	return PackedVector2Array()
+
+
+## Accumulates node transforms from [param node] down to [param child] and maps
+## [param p] (in the clickable's own space) into room-local coordinates.
+func _accumulate_transform(node: Node2D, p: Vector2) -> Vector2:
+	var xf := Transform2D.IDENTITY
+	var cur: Node = node
+	while cur != null and cur != get_viewport():
+		if cur is Node2D:
+			xf = (cur as Node2D).transform * xf
+		cur = cur.get_parent()
+	return xf * p
 
 
 ## Returns all the [Marker2D]s in the room.

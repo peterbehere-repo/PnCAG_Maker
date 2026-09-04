@@ -3,8 +3,8 @@
 [ext_resource type="Theme" uid="uid://b07cwfxxc53e5" path="res://addons/popochiu/engine/objects/gui/resources/base_gui_theme_high_res.tres" id="1_jajwc"]
 [ext_resource type="Script" uid="uid://ce1puevp24jw7" path="res://addons/popochiu/engine/objects/gui/templates/9_verb/components/9_verb_settings_popup/9_verb_settings_popup.gd" id="2_sldql"]
 [ext_resource type="StyleBox" uid="uid://bwanhyu2llpeg" path="res://addons/popochiu/engine/objects/gui/components/popups/popochiu_popup_panel_container_high_res.tres" id="3_cyxdx"]
-[ext_resource type="Texture2D" uid="uid://crfvalg8jyuni" path="res://addons/popochiu/engine/objects/gui/resources/images/close_high_res.svg" id="4_jajwc"]
-[ext_resource type="Texture2D" uid="uid://ccjfdeebj3yx3" path="res://addons/popochiu/engine/objects/gui/resources/images/close_highlight_high_res.svg" id="5_cyxdx"]
+[ext_resource type="Texture2D" uid="uid://p6ngclxr1s7l" path="res://addons/popochiu/engine/objects/gui/resources/images/close_high_res.svg" id="4_jajwc"]
+[ext_resource type="Texture2D" uid="uid://caegmv06o5fyd" path="res://addons/popochiu/engine/objects/gui/resources/images/close_highlight_high_res.svg" id="5_cyxdx"]
 [ext_resource type="PackedScene" uid="uid://cei3ewrijkiq0" path="res://addons/popochiu/engine/objects/gui/components/sound_volumes_high_res/sound_volumes_high_res.tscn" id="6_jajwc"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_4bri7"]

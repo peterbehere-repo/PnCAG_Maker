@@ -2,13 +2,13 @@
 
 [ext_resource type="Theme" uid="uid://b07cwfxxc53e5" path="res://addons/popochiu/engine/objects/gui/resources/base_gui_theme_high_res.tres" id="1_s3yhq"]
 [ext_resource type="Script" uid="uid://cg0ikp0rt6t05" path="res://addons/popochiu/engine/objects/gui/templates/sierra/components/sierra_inventory_popup/sierra_inventory_popup.gd" id="2_wsm41"]
-[ext_resource type="Texture2D" uid="uid://crfvalg8jyuni" path="res://addons/popochiu/engine/objects/gui/resources/images/close_high_res.svg" id="3_s3yhq"]
-[ext_resource type="Texture2D" uid="uid://ccjfdeebj3yx3" path="res://addons/popochiu/engine/objects/gui/resources/images/close_highlight_high_res.svg" id="4_a5pgp"]
+[ext_resource type="Texture2D" uid="uid://p6ngclxr1s7l" path="res://addons/popochiu/engine/objects/gui/resources/images/close_high_res.svg" id="3_s3yhq"]
+[ext_resource type="Texture2D" uid="uid://caegmv06o5fyd" path="res://addons/popochiu/engine/objects/gui/resources/images/close_highlight_high_res.svg" id="4_a5pgp"]
 [ext_resource type="PackedScene" uid="uid://bog4i3sdck4n" path="res://addons/popochiu/engine/objects/gui/templates/sierra_high_res/components/sierra_inventory_popup_high_res/sierra_inventory_grid_high_res.tscn" id="5_s3yhq"]
 [ext_resource type="ButtonGroup" uid="uid://dyskyd66yevlj" path="res://addons/popochiu/engine/objects/gui/templates/sierra/components/sierra_inventory_popup/sierra_inventory_button_group.tres" id="6_h60af"]
-[ext_resource type="Texture2D" uid="uid://dq1i0kltkr8nf" path="res://addons/popochiu/engine/objects/gui/templates/sierra_high_res/images/btn_interact.svg" id="7_s3yhq"]
-[ext_resource type="Texture2D" uid="uid://cjtycaxrm2v3g" path="res://addons/popochiu/engine/objects/gui/templates/sierra_high_res/images/btn_look.svg" id="8_a5pgp"]
-[ext_resource type="Texture2D" uid="uid://dc3n1pom0d00p" path="res://addons/popochiu/engine/objects/gui/templates/sierra_high_res/images/btn_talk.svg" id="9_p7bdt"]
+[ext_resource type="Texture2D" uid="uid://bn2phkhjthx1c" path="res://addons/popochiu/engine/objects/gui/templates/sierra_high_res/images/btn_interact.svg" id="7_s3yhq"]
+[ext_resource type="Texture2D" uid="uid://bey2byq1wqjh1" path="res://addons/popochiu/engine/objects/gui/templates/sierra_high_res/images/btn_look.svg" id="8_a5pgp"]
+[ext_resource type="Texture2D" uid="uid://dvy0l2lycpftf" path="res://addons/popochiu/engine/objects/gui/templates/sierra_high_res/images/btn_talk.svg" id="9_p7bdt"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0yihc"]
 

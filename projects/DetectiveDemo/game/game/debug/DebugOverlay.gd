@@ -15,6 +15,16 @@ static var show_hotspots := true
 static var show_labels := true
 
 func _ready() -> void:
+	# [L1] Release builds should not ship the debug overlay. It only runs in
+	# debug builds (editor or --debug exports). Keeping the autoload registered is
+	# harmless: the node exists but does nothing in release.
+	if not OS.is_debug_build():
+		visible = false
+		set_process(false)
+		set_process_input(false)
+		set_process_unhandled_input(false)
+		set_process_unhandled_key_input(false)
+		return
 	layer = 100
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_panel = RichTextLabel.new()
@@ -158,6 +168,12 @@ func _input(event: InputEvent) -> void:
 				DebugOverlay.show_labels = not DebugOverlay.show_labels
 				print("[DBG] labels: %s" % DebugOverlay.show_labels)
 				_update()
+			KEY_F5:
+				print("[DBG] saving game slot 1...")
+				E.save_game(1, "quick")
+			KEY_F8:
+				print("[DBG] loading game slot 1...")
+				E.load_game(1)
 
 
 func _process(_delta: float) -> void:
@@ -170,7 +186,7 @@ func _collect() -> Array:
 	if FileAccess.file_exists("res://game/debug/build_id.txt"):
 		bid = FileAccess.get_file_as_string("res://game/debug/build_id.txt").strip_edges()
 	l.append("build: %s" % bid)
-	l.append("toggles  [`]panel [1]walk [2]props [3]hot [4]names")
+	l.append("toggles  [`]panel [1]walk [2]props [3]hot [4]names · F5 save F8 load")
 	l.append("show: W=%s P=%s H=%s N=%s" % [DebugOverlay.show_walkable, DebugOverlay.show_props, DebugOverlay.show_hotspots, DebugOverlay.show_labels])
 	if R:
 		var room = R.current

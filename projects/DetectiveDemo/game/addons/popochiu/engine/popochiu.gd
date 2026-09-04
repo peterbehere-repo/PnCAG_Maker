@@ -55,6 +55,9 @@ var in_room := false : set = _set_in_room
 var clicked: PopochiuClickable = null
 ## Stores the last hovered [PopochiuClickable] for global access.
 var hovered: PopochiuClickable = null : get = get_hovered, set = set_hovered
+## [FIX-web] True when the cursor is over the walkable floor (non-clickable hover).
+## Used by the GUI for a "walk" cursor on web exports where physics picking is unreliable.
+var floor_hovered := false
 ## A reference to [PopochiuSettings]. Can be used to quickly access its members.
 var settings := PopochiuSettings.new()
 ## Reference to the [PopochiuAudioManager].

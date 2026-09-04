@@ -2,7 +2,7 @@
 
 [ext_resource type="Theme" uid="uid://b07cwfxxc53e5" path="res://addons/popochiu/engine/objects/gui/resources/base_gui_theme_high_res.tres" id="1_io13s"]
 [ext_resource type="Script" uid="uid://bb3qgcngq2xs7" path="res://addons/popochiu/engine/objects/gui/templates/simple_click/components/simple_click_bar/simple_click_bar.gd" id="2_pj1ip"]
-[ext_resource type="Texture2D" uid="uid://6u8n0wg2mkpb" path="res://addons/popochiu/engine/objects/gui/templates/simple_click_high_res/components/simple_click_bar_high_res/images/simple_click_settings_button_high_res.svg" id="3_lewa0"]
+[ext_resource type="Texture2D" uid="uid://euju25ftbys3" path="res://addons/popochiu/engine/objects/gui/templates/simple_click_high_res/components/simple_click_bar_high_res/images/simple_click_settings_button_high_res.svg" id="3_lewa0"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_lxom0"]
 atlas = ExtResource("3_lewa0")

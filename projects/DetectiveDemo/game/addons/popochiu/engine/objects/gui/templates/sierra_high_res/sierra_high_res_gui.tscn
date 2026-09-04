@@ -2,7 +2,7 @@
 
 [ext_resource type="Theme" uid="uid://b07cwfxxc53e5" path="res://addons/popochiu/engine/objects/gui/resources/base_gui_theme_high_res.tres" id="1_rtj5u"]
 [ext_resource type="Script" uid="uid://bcmg4g3bv1n4q" path="res://addons/popochiu/engine/objects/gui/templates/sierra_high_res/sierra_high_res_gui.gd" id="2_h2ksh"]
-[ext_resource type="Texture2D" uid="uid://cgfwd80vp5mtw" path="res://addons/popochiu/engine/objects/gui/templates/sierra_high_res/images/action_bar_high_res_cursor.svg" id="3_rtj5u"]
+[ext_resource type="Texture2D" uid="uid://7t2ofc65xyes" path="res://addons/popochiu/engine/objects/gui/templates/sierra_high_res/images/action_bar_high_res_cursor.svg" id="3_rtj5u"]
 [ext_resource type="PackedScene" uid="uid://ceogb1x5ohb0q" path="res://addons/popochiu/engine/objects/gui/templates/sierra_high_res/components/sierra_bar_high_res/sierra_bar_high_res.tscn" id="4_rtj5u"]
 [ext_resource type="PackedScene" uid="uid://vdlu8j5socik" path="res://addons/popochiu/engine/objects/gui/templates/sierra_high_res/components/sierra_menu_high_res/sierra_menu_high_res.tscn" id="5_rtj5u"]
 [ext_resource type="PackedScene" uid="uid://bv2uv3sj50a46" path="res://addons/popochiu/engine/objects/gui/components/dialog_text/dialog_portrait_high_res/dialog_portrait_high_res.tscn" id="6_rtj5u"]

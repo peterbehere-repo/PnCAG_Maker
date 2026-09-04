@@ -3,9 +3,9 @@
 [ext_resource type="Theme" uid="uid://b07cwfxxc53e5" path="res://addons/popochiu/engine/objects/gui/resources/base_gui_theme_high_res.tres" id="1_myo6m"]
 [ext_resource type="Script" uid="uid://ctfsmdsp6lh58" path="res://addons/popochiu/engine/objects/gui/templates/9_verb/components/9_verb_inventory_grid/9_verb_inventory_grid.gd" id="2_vmgf0"]
 [ext_resource type="PackedScene" uid="uid://dgxw0s4l2txlw" path="res://addons/popochiu/engine/objects/gui/templates/9_verb_high_res/components/9_verb_inventory_grid_high_res/9_verb_inventory_slot_high_res.tscn" id="3_myo6m"]
-[ext_resource type="Texture2D" uid="uid://b51ovma88hm0d" path="res://addons/popochiu/engine/objects/gui/resources/images/btn_up_high_res.svg" id="4_d3x12"]
-[ext_resource type="Texture2D" uid="uid://dgm6rxo3pk8n3" path="res://addons/popochiu/engine/objects/gui/templates/9_verb_high_res/components/9_verb_inventory_grid_high_res/images/9verb_ico_settings_high_res.svg" id="5_d3x12"]
-[ext_resource type="Texture2D" uid="uid://dcu5ub7t0qbyu" path="res://addons/popochiu/engine/objects/gui/resources/images/btn_down_high_res.svg" id="6_d3x12"]
+[ext_resource type="Texture2D" uid="uid://buwryalmt1bjp" path="res://addons/popochiu/engine/objects/gui/resources/images/btn_up_high_res.svg" id="4_d3x12"]
+[ext_resource type="Texture2D" uid="uid://bo18lrm8roi08" path="res://addons/popochiu/engine/objects/gui/templates/9_verb_high_res/components/9_verb_inventory_grid_high_res/images/9verb_ico_settings_high_res.svg" id="5_d3x12"]
+[ext_resource type="Texture2D" uid="uid://it8l5ylrryoy" path="res://addons/popochiu/engine/objects/gui/resources/images/btn_down_high_res.svg" id="6_d3x12"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_5xjfw"]
 atlas = ExtResource("4_d3x12")

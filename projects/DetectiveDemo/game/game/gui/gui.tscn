@@ -2,7 +2,7 @@
 
 [ext_resource type="Theme" uid="uid://b07cwfxxc53e5" path="res://addons/popochiu/engine/objects/gui/resources/base_gui_theme_high_res.tres" id="1_5f0sx"]
 [ext_resource type="Script" uid="uid://cfy63db2vvl7t" path="res://addons/popochiu/engine/objects/gui/templates/simple_click_high_res/simple_click_high_res_gui.gd" id="2_jxtvu"]
-[ext_resource type="Texture2D" uid="uid://b4d8ra2l7s08d" path="res://addons/popochiu/engine/objects/gui/templates/simple_click_high_res/images/simple_click_cursor_high_res.svg" id="3_jxtvu"]
+[ext_resource type="Texture2D" uid="uid://vgyfsdcjiljr" path="res://addons/popochiu/engine/objects/gui/templates/simple_click_high_res/images/simple_click_cursor_high_res.svg" id="3_jxtvu"]
 [ext_resource type="PackedScene" uid="uid://c2hd63hqy3fqd" path="res://addons/popochiu/engine/objects/gui/templates/simple_click_high_res/components/simple_click_bar_high_res/simple_click_bar_high_res.tscn" id="4_2ubjg"]
 [ext_resource type="PackedScene" uid="uid://bvdyamd6jb0yh" path="res://addons/popochiu/engine/objects/gui/components/hover_text_high_res/hover_text_high_res.tscn" id="5_rf1jp"]
 [ext_resource type="PackedScene" uid="uid://c0igkpb3nl4yw" path="res://addons/popochiu/engine/objects/gui/components/dialog_text/dialog_overhead_high_res/dialog_overhead_high_res.tscn" id="6_ef6ps"]

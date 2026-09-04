@@ -2,7 +2,7 @@
 
 [ext_resource type="Theme" uid="uid://dpequqav4rjaf" path="res://addons/popochiu/engine/objects/gui/resources/base_gui_theme.tres" id="1_5somw"]
 [ext_resource type="Script" uid="uid://b4ykkm640en80" path="res://addons/popochiu/engine/objects/gui/templates/9_verb/9_verb_gui.gd" id="2_6nea2"]
-[ext_resource type="Texture2D" uid="uid://d0fwvj88bhggm" path="res://addons/popochiu/engine/objects/gui/templates/9_verb/images/9_verb_cursor.png" id="3_fpt6m"]
+[ext_resource type="Texture2D" uid="uid://cgawpvpli8lr" path="res://addons/popochiu/engine/objects/gui/templates/9_verb/images/9_verb_cursor.png" id="3_fpt6m"]
 [ext_resource type="PackedScene" uid="uid://bn7o13nv11ka1" path="res://addons/popochiu/engine/objects/gui/components/dialog_text/dialog_overhead/dialog_overhead.tscn" id="5_gejku"]
 [ext_resource type="PackedScene" uid="uid://bdgs3xsbq3gdd" path="res://addons/popochiu/engine/objects/gui/components/system_text/system_text.tscn" id="5_ygb3y"]
 [ext_resource type="PackedScene" uid="uid://cuokybjvunmhq" path="res://addons/popochiu/engine/objects/gui/templates/9_verb/components/9_verb_panel/9_verb_panel.tscn" id="6_tiq5g"]
