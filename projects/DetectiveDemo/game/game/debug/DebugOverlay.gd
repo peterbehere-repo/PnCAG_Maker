@@ -166,23 +166,40 @@ class AreaDrawer extends Control:
 		# hotspots (cyan)
 		for hs in get_tree().get_nodes_in_group("hotspots"):
 			_draw_clickable(hs, vt, Color(0.2, 0.9, 1, 0.9))
+	func _draw_poly(vt: Transform2D, origin: Vector2, pts: PackedVector2Array, col: Color) -> void:
+		if pts.size() < 3:
+			return
+		var xf := PackedVector2Array()
+		for p in pts:
+			xf.append(vt * (origin + p))
+		if xf.size() < 3:
+			return
+		var closed := xf.duplicate()
+		closed.append(xf[0])
+		draw_polyline(closed, col, 2.0)
+		var fill := col
+		fill.a = 0.14
+		draw_colored_polygon(xf, fill)
+
 	func _draw_clickable(node: Node2D, vt: Transform2D, col: Color) -> void:
 		if not node.visible:
 			return
-		# PopochiuWalkableArea stores its click polygon in the `interaction_polygon`
-		# export (its Area2D collision, NOT the NavigationRegion2D navmesh, which is
-		# re-baked at runtime and exposes no source outline). Draw it directly.
-		if node.get("interaction_polygon") != null:
-			var pgon: PackedVector2Array = node.interaction_polygon
-			if pgon.size() > 2:
-				var pts := PackedVector2Array()
-				for p in pgon:
-					pts.append(vt * (node.global_position + p))
-				if pts.size() > 0:
-					pts.append(pts[0])
-					draw_polyline(pts, col, 2.0)
-					# faint filled floor so the walkable band is visible
-					draw_colored_polygon(PackedVector2Array(pts.slice(0, pts.size() - 1)), Color(0.2, 1, 0.3, 0.14))
+		# PopochiuWalkableArea stores its click polygon in `interaction_polygon` as
+		# an Array[PackedVector2Array] (one outline per polygon) — its Area2D
+		# collision. Draw each outline (same proof as the orange/cyan boxes).
+		# FALLBACK for plain PackedVector2Array exports (flat list of points).
+		var ip: Variant = node.get("interaction_polygon")
+		if ip != null and not (ip is Array and ip.is_empty()):
+			var drew := false
+			if ip is Array:
+				for outline: PackedVector2Array in ip:
+					if outline.size() > 2:
+						_draw_poly(vt, node.global_position, outline, col)
+						drew = true
+			elif ip is PackedVector2Array and ip.size() > 2:
+				_draw_poly(vt, node.global_position, ip, col)
+				drew = true
+			if drew:
 				return
 		for child in node.get_children():
 			if child is CollisionPolygon2D and child.get_polygon().size() > 2:

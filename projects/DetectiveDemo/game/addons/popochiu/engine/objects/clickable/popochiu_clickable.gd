@@ -629,11 +629,14 @@ func _is_click_or_touch(event: InputEvent) -> bool:
 # Checks if [param event] is an [InputEventMouseButton] or [InputEventScreenTouch] event and if it
 # is pressed.
 func _is_click_or_touch_pressed(event: InputEvent) -> bool:
-	# Fix #183 by including `event is InputEventScreenTouch` validation
-	if not _has_double_click:
-		return await _is_click_or_touch(event) and event.pressed
-	else:
-		return false
+	# [FIX-web] Resolve every single press IMMEDIATELY. Upstream gated on the
+	# per-clickable _has_double_click flag; in web the reset timer (await wait())
+	# races and never runs, so after the first double-click event ALL later clicks
+	# on that prop/hotspot were silently dropped (console: "not click/touch-pressed"
+	# even though hovered==self, blocked=false). A point-and-click game doesn't
+	# need the double-click gate.
+	return (event is InputEventMouseButton and not event.double_click and event.pressed) \
+		or (event is InputEventScreenTouch and not event.double_tap and event.pressed)
 
 
 # Checks if [param event] is a double click or double tap event.
