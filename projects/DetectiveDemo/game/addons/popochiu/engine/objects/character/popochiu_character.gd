@@ -1797,8 +1797,25 @@ func _update_navigation_path(character: PopochiuCharacter, start_position: Vecto
 		ignore_obstacles # Pass the new flag
 	)
 
+	# [FIX-web] get_navigation_path can return empty when the NavigationServer map
+	# isn't baked/active yet in the web export (timing differs from desktop). An
+	# empty path used to return silently -> walk() would await movement_ended
+	# forever and the character froze. Force the map update once, then retry;
+	# if still empty, fall back to a straight line to the target so walking
+	# always works on simple rooms.
 	if _navigation_path.is_empty():
-		return
+		current_room.update_navigation_obstacles()
+		# Give the nav server a moment to finish baking maps.
+		await get_tree().create_timer(0.05).timeout
+		_navigation_path = current_room.get_navigation_path(
+			start_position,
+			end_position,
+			ignore_walkable_areas,
+			ignore_obstacles
+		)
+		if _navigation_path.is_empty():
+			print("[WALK] nav path empty after retry; using direct path")
+			_navigation_path = PackedVector2Array([start_position, end_position])
 
 	# If the path is not empty it has at least two points: the start and the end.
 	# Let's remove the first point of the path since it is the character's current position.

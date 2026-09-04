@@ -618,17 +618,12 @@ func _translate() -> void:
 
 # Checks if [param event] is an [InputEventMouseButton] or [InputEventScreenTouch] event.
 func _is_click_or_touch(event: InputEvent) -> bool:
-	if (
-		(event is InputEventMouseButton and not event.double_click)
-		or (event is InputEventScreenTouch and not event.double_tap)
-	):
-		# This delay is need to prevent a single click being detected before double click
-		await PopochiuUtils.e.wait(_double_click_delay)
-
-		if not _has_double_click:
-			return (event is InputEventMouseButton or event is InputEventScreenTouch)
-
-	return false
+	# [FIX-web] Resolve single clicks immediately. The upstream version awaited
+	# the double-click delay before resolving, which could stall in web exports
+	# (timer waits racing), silently killing prop/hotspot clicks.
+	# Real double-click events are handled separately via _is_double_click_or_tap.
+	return (event is InputEventMouseButton and not event.double_click) or \
+		(event is InputEventScreenTouch and not event.double_tap)
 
 
 # Checks if [param event] is an [InputEventMouseButton] or [InputEventScreenTouch] event and if it
