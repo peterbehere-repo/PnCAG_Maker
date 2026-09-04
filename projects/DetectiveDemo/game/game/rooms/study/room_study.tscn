@@ -33,12 +33,12 @@ navigation_polygon = SubResource("NavigationPolygon_floor")
 [node name="Props" type="Node2D" parent="."]
 
 [node name="Desk" parent="Props" instance=ExtResource("3_desk")]
-position = Vector2(900, 780)
+position = Vector2(400, 840)
 
 [node name="Hotspots" type="Node2D" parent="."]
 
 [node name="Window" parent="Hotspots" instance=ExtResource("4_window")]
-position = Vector2(360, 420)
+position = Vector2(1300, 280)
 
 [node name="Regions" type="Node2D" parent="."]
 

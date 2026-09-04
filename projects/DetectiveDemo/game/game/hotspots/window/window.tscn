@@ -9,8 +9,8 @@ script = ExtResource("2_hs")
 script_name = "window"
 hotspot_name = "Window"
 cursor = 1
-interaction_polygon = PackedVector2Array(-60, -80, 60, -80, 60, 40, -60, 40)
+interaction_polygon = PackedVector2Array(-250, -280, 250, -280, 250, 280, -250, 280)
 
 [node name="InteractionPolygon" type="CollisionPolygon2D" parent="."]
 visible = false
-polygon = PackedVector2Array(-60, -80, 60, -80, 60, 40, -60, 40)
+polygon = PackedVector2Array(-250, -280, 250, -280, 250, 280, -250, 280)

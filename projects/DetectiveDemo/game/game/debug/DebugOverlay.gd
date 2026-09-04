@@ -3,6 +3,7 @@ extends CanvasLayer
 var _lines: Array = []
 var _last_click := "none"
 var _panel: RichTextLabel
+var _area_drawer: Control = null
 
 func _ready() -> void:
 	layer = 100
@@ -57,5 +58,61 @@ func _update() -> void:
 	_lines = _collect()
 	var txt := "\n".join(_lines)
 	_panel.text = txt
-	# also mirror to console so it survives even if panel rendering fails
-	print("[DEBUG] " + txt.replace("\n", " | "))
+	_draw_areas()
+
+func _draw_areas() -> void:
+	_panel_draw_areas()
+
+func _panel_draw_areas() -> void:
+	# draw geometric outlines via a temporary canvas item on the layer
+	if _area_drawer == null:
+		_area_drawer = AreaDrawer.new()
+		add_child(_area_drawer)
+	_area_drawer.queue_redraw()
+
+class AreaDrawer extends Control:
+	func _ready() -> void:
+		set_anchors_preset(Control.PRESET_FULL_RECT)
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+	func _draw() -> void:
+		var room = R.current if R else null
+		if room == null:
+			return
+		var vt := get_viewport_transform()
+		# walkable areas (green)
+		for wa in get_tree().get_nodes_in_group("walkable_areas"):
+			_draw_clickable(wa, vt, Color(0.2, 1, 0.3, 0.9))
+		# props (orange)
+		for pr in get_tree().get_nodes_in_group("props"):
+			_draw_clickable(pr, vt, Color(1, 0.6, 0.1, 0.9))
+		# hotspots (cyan)
+		for hs in get_tree().get_nodes_in_group("hotspots"):
+			_draw_clickable(hs, vt, Color(0.2, 0.9, 1, 0.9))
+	func _draw_clickable(node: Node2D, vt: Transform2D, col: Color) -> void:
+		if not node.visible:
+			return
+		for child in node.get_children():
+			if child is CollisionPolygon2D and child.get_polygon().size() > 2:
+				pass
+			elif child is NavigationRegion2D and child.navigation_polygon and child.navigation_polygon.get_polygon_count() > 0:
+				var npts := PackedVector2Array()
+				for p in child.navigation_polygon.get_vertices():
+					npts.append(vt * (node.global_position + child.position + p))
+				if npts.size() > 0:
+					npts.append(npts[0])
+					draw_polyline(npts, col, 2.0)
+		for child in node.get_children():
+			if child is CollisionPolygon2D and child.get_polygon().size() > 2:
+				var pts := PackedVector2Array()
+				for p in child.get_polygon():
+					pts.append(vt * (node.global_position + p))
+				pts.append(pts[0])
+				draw_polyline(pts, col, 2.0)
+			elif child is CollisionShape2D and child.shape:
+				var r := Rect2()
+				if child.shape is RectangleShape2D:
+					r = Rect2(-child.shape.size / 2, child.shape.size)
+					var pts := PackedVector2Array()
+					for corner in [r.position, r.position + Vector2(r.size.x,0), r.position + r.size, r.position + Vector2(0,r.size.y), r.position]:
+						pts.append(vt * (node.global_position + child.position + corner))
+					draw_polyline(pts, col, 2.0)

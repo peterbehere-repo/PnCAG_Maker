@@ -8,7 +8,7 @@ script = ExtResource("1_prop")
 script = ExtResource("2_prop")
 script_name = "desk"
 prop_name = "Desk"
-interaction_polygon = PackedVector2Array(-80, -40, 80, -40, 80, 40, -80, 40)
+interaction_polygon = PackedVector2Array(-340, -240, 340, -240, 340, 240, -340, 240)
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture_filter = 1
@@ -17,7 +17,7 @@ texture_filter = 1
 
 [node name="InteractionPolygon" type="CollisionPolygon2D" parent="."]
 visible = false
-polygon = PackedVector2Array(-80, -40, 80, -40, 80, 40, -80, 40)
+polygon = PackedVector2Array(-340, -240, 340, -240, 340, 240, -340, 240)
 
 [node name="ObstaclePolygon" type="NavigationObstacle2D" parent="."]
 visible = false
