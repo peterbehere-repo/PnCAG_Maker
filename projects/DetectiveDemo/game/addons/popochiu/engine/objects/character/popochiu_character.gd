@@ -462,6 +462,7 @@ func queue_walk(target_pos: Vector2) -> Callable:
 ## Makes the character walk to [param target_pos], playing its walk animation and flipping
 ## the sprite based on [member flips_when].
 func walk(target_pos: Vector2) -> void:
+	print("[WALK] character.walk called target=%s can_move=%s is_moving=%s e.blocked=%s" % [target_pos, can_move, is_moving, PopochiuUtils.e.blocked])
 	var start_position := get_buffered_position()
 
 	is_moving = true

@@ -169,6 +169,21 @@ class AreaDrawer extends Control:
 	func _draw_clickable(node: Node2D, vt: Transform2D, col: Color) -> void:
 		if not node.visible:
 			return
+		# PopochiuWalkableArea stores its click polygon in the `interaction_polygon`
+		# export (its Area2D collision, NOT the NavigationRegion2D navmesh, which is
+		# re-baked at runtime and exposes no source outline). Draw it directly.
+		if node.get("interaction_polygon") != null:
+			var pgon: PackedVector2Array = node.interaction_polygon
+			if pgon.size() > 2:
+				var pts := PackedVector2Array()
+				for p in pgon:
+					pts.append(vt * (node.global_position + p))
+				if pts.size() > 0:
+					pts.append(pts[0])
+					draw_polyline(pts, col, 2.0)
+					# faint filled floor so the walkable band is visible
+					draw_colored_polygon(PackedVector2Array(pts.slice(0, pts.size() - 1)), Color(0.2, 1, 0.3, 0.14))
+				return
 		for child in node.get_children():
 			if child is CollisionPolygon2D and child.get_polygon().size() > 2:
 				pass

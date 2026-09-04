@@ -527,7 +527,11 @@ func _on_mouse_exited() -> void:
 
 
 func _on_input_event(_viewport: Node, event: InputEvent, _shape_idx: int):
+	if event is InputEventMouseButton and event.pressed:
+		print("[CLK] %s input_event btn=%d pos=%s hovered=%s blocked=%s" % [name, event.button_index, event.position, PopochiuUtils.e.hovered, PopochiuUtils.g.is_blocked])
 	if PopochiuUtils.g.is_blocked or not PopochiuUtils.e.hovered or PopochiuUtils.e.hovered != self:
+		if event is InputEventMouseButton and event.pressed:
+			print("[CLK] %s SKIP: blocked=%s hovered=%s self=%s" % [name, PopochiuUtils.g.is_blocked, PopochiuUtils.e.hovered, self])
 		return
 
 	if _is_double_click_or_tap(event):
@@ -537,7 +541,10 @@ func _on_input_event(_viewport: Node, event: InputEvent, _shape_idx: int):
 
 		return
 
-	if not await _is_click_or_touch_pressed(event): return
+	if not await _is_click_or_touch_pressed(event):
+		if event is InputEventMouseButton:
+			print("[CLK] %s not click/touch-pressed" % name)
+		return
 
 	var event_index := PopochiuUtils.get_click_or_touch_index(event)
 	PopochiuUtils.e.clicked = self

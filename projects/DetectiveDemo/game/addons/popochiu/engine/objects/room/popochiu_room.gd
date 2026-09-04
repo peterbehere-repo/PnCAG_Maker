@@ -93,12 +93,20 @@ func _ready():
 
 
 func _unhandled_input(event: InputEvent):
+	# [DBG-WALK] instrumented
+	if event is InputEventMouseButton and event.pressed:
+		print("[WALK] uh_input btn=%d pos=%s hovered=%s is_current=%s proc=%s" % [
+			event.button_index, event.position, PopochiuUtils.e.hovered, is_current, is_processing_unhandled_input()])
 	if (
 		not PopochiuUtils.get_click_or_touch_index(event) in [
 			MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT
 		]
 		or (not event is InputEventScreenTouch and PopochiuUtils.e.hovered)
 	):
+		if event is InputEventMouseButton and event.pressed:
+			print("[WALK] early return: not-click=%s hovered-null=%s" % [
+				not PopochiuUtils.get_click_or_touch_index(event) in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT],
+				PopochiuUtils.e.hovered == null])
 		return
 
 	# Fix #224 Item should be removed only if the click was done anywhere in the room when the
