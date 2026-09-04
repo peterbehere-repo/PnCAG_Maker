@@ -92,6 +92,20 @@ func _ready():
 	PopochiuUtils.r.room_readied(self)
 
 
+func _process(_delta: float):
+	# [FIX-web] Manual hover fallback: physics picking never sets `hovered` in
+	# web exports, so compute it from the mouse position every frame.
+	if is_current and not PopochiuUtils.g.is_blocked:
+		var mouse := get_local_mouse_position()
+		var picked: Variant = _manual_pick_clickable(mouse)
+		var cur = PopochiuUtils.e.hovered
+		if picked != cur:
+			if is_instance_valid(cur) and cur != picked:
+				cur._on_mouse_exited()
+			if picked:
+				picked._on_mouse_entered()
+			PopochiuUtils.e.hovered = picked
+
 func _unhandled_input(event: InputEvent):
 	# [DBG-WALK] instrumented
 	if event is InputEventMouseButton and event.pressed:
@@ -119,6 +133,17 @@ func _unhandled_input(event: InputEvent):
 		return
 
 	if has_player and is_instance_valid(PopochiuUtils.c.player) and PopochiuUtils.c.player.can_move:
+		# [FIX-web] Physics picking (Area2D input_event / mouse_entered) is
+		# unreliable in web exports — clicks and hovers never reach clickables.
+		# Fall back to a manual point-in-polygon pick against the click position.
+		if not event is InputEventScreenTouch:
+			var picked: Variant = _manual_pick_clickable(get_local_mouse_position())
+			if picked:
+				print("[PICK] manual pick hit: %s" % picked.name)
+				PopochiuUtils.e.hovered = picked
+				picked._on_input_event(get_viewport(), event, -1)
+				return
+
 		# Set this property to null in order to cancel any running interaction with a
 		# PopochiuClickable (check PopochiuCharacter.walk_to_clicked(...)).
 		PopochiuUtils.e.clicked = null
@@ -357,6 +382,46 @@ func get_hotspots() -> Array:
 ## Returns all the [PopochiuRegion]s in the room.
 func get_regions() -> Array:
 	return get_tree().get_nodes_in_group("regions")
+
+
+## [FIX-web] Manual picking fallback for web exports where physics picking
+## (Area2D input_event / mouse_entered) doesn't reach clickables. Tests the
+## room-space [param pos] against every active prop/hotspot interaction
+## polygon and returns the topmost hit (props over hotspots).
+func _manual_pick_clickable(pos: Vector2):
+	var hit = null
+	for group in ["props", "hotspots"]:
+		for node in get_tree().get_nodes_in_group(group):
+			if node != null and node.visible:
+				var poly: PackedVector2Array = _clickable_polygon(node)
+				if poly.size() > 2 and Geometry2D.is_point_in_polygon(pos, poly):
+					hit = node
+					break
+		if hit:
+			break
+	return hit
+
+
+## Returns the interaction polygon of a clickable in room-local coordinates.
+func _clickable_polygon(node):
+	var poly := PackedVector2Array()
+	for child in node.get_children():
+		if child is CollisionPolygon2D:
+			for p in child.polygon:
+				poly.append(node.position + child.position + p)
+			break
+	if poly.is_empty():
+		# Fallback: use the clickable's own rect.
+		var rect := Rect2()
+		for child in node.get_children():
+			if child is CollisionShape2D and child.shape:
+				var r: Rect2 = child.shape.get_rect()
+				poly.append(node.position + child.position + r.position)
+				poly.append(node.position + child.position + r.position + Vector2(r.size.x, 0))
+				poly.append(node.position + child.position + r.position + r.size)
+				poly.append(node.position + child.position + r.position + Vector2(0, r.size.y))
+				break
+	return poly
 
 
 ## Returns all the [Marker2D]s in the room.
