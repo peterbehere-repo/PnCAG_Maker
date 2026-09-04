@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
@@ -19,33 +19,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Assemble web builds from each project
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Build pages content
         run: |
-          set -e
-          mkdir -p /tmp/ghpages
-          # For every project that has a web export, copy its build/web to /tmp/ghpages/<project>
-          for proj in projects/*/; do
-            name="$(basename "$proj")"
-            if [ -d "$proj/build/web" ]; then
-              echo "packing $name"
-              cp -r "$proj/build/web" "/tmp/ghpages/$name"
+          rm -rf _site && mkdir -p _site
+          for d in projects/*/build/web; do
+            game=$(basename $(dirname $(dirname $d)))
+            mkdir -p "_site/$game"
+            cp -r "$d/." "_site/$game/"
+            # redirect index.html -> newest versioned html
+            newest=$(ls -1 "$d"/game-*.html 2>/dev/null | sort -V | tail -1)
+            if [ -n "$newest" ]; then
+              bn=$(basename "$newest")
+              cat > "_site/$game/index.html" << EOF
+<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=./$bn"><link rel="canonical" href="./$bn"></head><body><a href="./$bn">Open game ($bn)</a></body></html>
+EOF
             fi
           done
-          ls -la /tmp/ghpages
-
-      - name: Deploy to gh-pages
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: /tmp/ghpages
-          publish_branch: gh-pages
-          force_orphan: true
+          path: _site
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
 
-      - name: Enable Pages (if needed)
-        run: |
-          gh api -X POST repos/${{ github.repository }}/pages \
-            -f "source[branch]=gh-pages" -f "source[path]=/" \
-            --silent || true
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
