@@ -30,7 +30,14 @@ jobs:
             name="$(basename "$proj")"
             if [ -d "$proj/build/web" ]; then
               echo "packing $name"
-              cp -r "$proj/build/web" "/tmp/ghpages/$name"
+              mkdir -p "/tmp/ghpages/$name"
+              cp "$proj/build/web"/game-* "/tmp/ghpages/$name/" 2>/dev/null || true
+              # also copy any index.* companion files (icons, worklets) except .import
+              for f in "$proj/build/web"/index.*; do
+                [ -e "$f" ] || continue
+                case "$(basename "$f")" in *.import) continue;; esac
+                cp "$f" "/tmp/ghpages/$name/"
+              done
               # Redirect index.html -> newest versioned entry (cache-proof)
               newest="$(ls -1 "$proj/build/web"/game-*.html 2>/dev/null | sort -V | tail -1 || true)"
               if [ -n "$newest" ]; then
