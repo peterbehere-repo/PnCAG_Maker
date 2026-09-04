@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" uid="uid://q8qqjmyk2vvx" path="res://addons/popochiu/engine/objects/hotspot/popochiu_hotspot.gd" id="1_hs"]
+[ext_resource type="Script" path="res://game/hotspots/window/window.gd" id="2_hs"]
+
+[node name="Window" type="Area2D"]
+script = ExtResource("1_hs")
+script = ExtResource("2_hs")
+script_name = "window"
+hotspot_name = "Window"
+cursor = 1
+interaction_polygon = PackedVector2Array(-60, -80, 60, -80, 60, 40, -60, 40)
+
+[node name="InteractionPolygon" type="CollisionPolygon2D" parent="."]
+visible = false
+polygon = PackedVector2Array(-60, -80, 60, -80, 60, 40, -60, 40)

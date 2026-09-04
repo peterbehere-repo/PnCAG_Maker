@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" uid="uid://b54xtbcxse2gg" path="res://addons/popochiu/engine/objects/inventory_item/popochiu_inventory_item.gd" id="1_inv"]
+[ext_resource type="Script" path="res://game/inventory_items/brass_key/brass_key.gd" id="2_inv"]
+
+[node name="BrassKey" type="TextureRect"]
+texture_filter = 1
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 0
+stretch_mode = 5
+script = ExtResource("1_inv")
+script = ExtResource("2_inv")
+script_name = "brass_key"
+item_name = "Brass Key"
+description = "A dull brass key with an ornate head."
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]

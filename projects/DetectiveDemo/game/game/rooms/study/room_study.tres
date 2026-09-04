@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="room_study_state" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://game/rooms/study/room_study_state.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+script_name = "study"
+scene = "res://game/rooms/study/room_study.tscn"
+resource_name = "study"

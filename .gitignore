@@ -1,0 +1,10 @@
+# Godot editor/import cruft
+.godot/
+*.import
+.import/
+export_presets.cfg.bak
+# OS junk
+.DS_Store
+Thumbs.db
+# local deploy creds — DO NOT COMMIT
+.deploy/
