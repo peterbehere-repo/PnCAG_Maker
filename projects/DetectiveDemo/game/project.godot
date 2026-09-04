@@ -19,6 +19,7 @@ D="*res://game/autoloads/d.gd"
 A="*res://game/autoloads/a.gd"
 G="*res://addons/popochiu/engine/interfaces/i_graphic_interface.gd"
 T="*res://addons/popochiu/engine/interfaces/i_transition_layer.gd"
+DebugOverlay="*res://game/debug/DebugOverlay.gd"
 
 [display]
 window/size/viewport_width=1920
@@ -47,7 +48,7 @@ dialogs/gibberish_spoken_text=false
 dialogs/gibberish_dialog_options=false
 dialogs/dialog_style=0
 inventory/inventory_limit=0
-inventory/items_on_start=PackedStringArray("brass_key")
+inventory/items_on_start=PackedStringArray()
 aseprite_import/import_animation_by_default=true
 aseprite_import/new_props_visible_by_default=true
 aseprite_import/new_props_clickable_by_default=true
