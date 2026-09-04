@@ -2,8 +2,11 @@
 @tool
 extends PopochiuHotspot
 
+#region Virtual
 func _on_look() -> void:
-	E.run_character_line(C.detective, "Rain. It's been raining all week.")
+	C.player.say("Rain. It's been raining all week.")
+
 
 func _on_interact() -> void:
-	E.run_character_line(C.detective, "Can't go out — the case comes first.")
+	C.player.say("Can't go out — the case comes first.")
+#endregion

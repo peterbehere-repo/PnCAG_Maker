@@ -20,13 +20,13 @@ texture = ExtResource("2_bg")
 
 [node name="WalkableAreas" type="Node2D" parent="."]
 
-[node name="WalkableArea" type="Node2D" parent="WalkableAreas"]
+[node name="StudyFloor" type="Node2D" parent="WalkableAreas"]
 script = ExtResource("5_wa")
 script_name = "StudyFloor"
 interaction_polygon_position = Vector2(0, 0)
 interaction_polygon = PackedVector2Array(130, 690, 1790, 690, 1790, 1060, 130, 1060)
 
-[node name="Perimeter" type="NavigationRegion2D" parent="WalkableAreas/WalkableArea"]
+[node name="Perimeter" type="NavigationRegion2D" parent="WalkableAreas/StudyFloor"]
 visible = false
 navigation_polygon = SubResource("NavigationPolygon_floor")
 
