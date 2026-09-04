@@ -528,7 +528,7 @@ func _on_mouse_exited() -> void:
 
 func _on_input_event(_viewport: Node, event: InputEvent, _shape_idx: int):
 	if event is InputEventMouseButton and event.pressed:
-		print("[CLK] %s input_event btn=%d pos=%s hovered=%s blocked=%s" % [name, event.button_index, event.position, PopochiuUtils.e.hovered, PopochiuUtils.g.is_blocked])
+		print("[CLK] %s input_event btn=%d dbl=%s pos=%s hovered=%s blocked=%s" % [name, event.button_index, event.double_click, event.position, PopochiuUtils.e.hovered, PopochiuUtils.g.is_blocked])
 	if PopochiuUtils.g.is_blocked or not PopochiuUtils.e.hovered or PopochiuUtils.e.hovered != self:
 		if event is InputEventMouseButton and event.pressed:
 			print("[CLK] %s SKIP: blocked=%s hovered=%s self=%s" % [name, PopochiuUtils.g.is_blocked, PopochiuUtils.e.hovered, self])
@@ -629,14 +629,17 @@ func _is_click_or_touch(event: InputEvent) -> bool:
 # Checks if [param event] is an [InputEventMouseButton] or [InputEventScreenTouch] event and if it
 # is pressed.
 func _is_click_or_touch_pressed(event: InputEvent) -> bool:
-	# [FIX-web] Resolve every single press IMMEDIATELY. Upstream gated on the
-	# per-clickable _has_double_click flag; in web the reset timer (await wait())
-	# races and never runs, so after the first double-click event ALL later clicks
-	# on that prop/hotspot were silently dropped (console: "not click/touch-pressed"
-	# even though hovered==self, blocked=false). A point-and-click game doesn't
-	# need the double-click gate.
-	return (event is InputEventMouseButton and not event.double_click and event.pressed) \
-		or (event is InputEventScreenTouch and not event.double_tap and event.pressed)
+	# [FIX-web v2] Accept ANY press that is not a double-click event. The old
+	# double-click disambiguation (per-clickable _has_double_click + reset
+	# timers) races in web exports and silently dropped clicks. Log the event
+	# state so any future rejection is visible in the console.
+	var is_press: bool = event.pressed if "pressed" in event else true
+	var dbl: bool = event.double_click if "double_click" in event else (event.double_tap if "double_tap" in event else false)
+	if event is InputEventMouseButton or event is InputEventScreenTouch:
+		print("[CLK] %s press-check: is_press=%s dbl=%s type=%s" % [name, is_press, dbl, event.get_class()])
+	if not dbl and is_press:
+		return true
+	return false
 
 
 # Checks if [param event] is a double click or double tap event.

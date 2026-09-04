@@ -112,6 +112,14 @@ func _collect() -> Array:
 			l.append("walkable areas: %d" % room.get_walkable_areas().size())
 			var wa = room.get_active_walkable_area()
 			l.append("active WA: %s" % (wa.name if wa else "NONE"))
+			var ip: Variant = wa.get("interaction_polygon") if wa else null
+			var n_out := 0
+			var n_pts := 0
+			if ip is Array:
+				n_out = ip.size()
+				for o: PackedVector2Array in ip:
+					n_pts += o.size()
+			l.append("WA outlines: %d pts: %d" % [n_out, n_pts])
 			l.append("room is_current: %s" % room.is_current)
 			l.append("room proc_uh: %s" % room.is_processing_unhandled_input())
 			l.append("gui blocked: %s" % (G.is_blocked if G else "?"))
@@ -191,13 +199,18 @@ class AreaDrawer extends Control:
 		var ip: Variant = node.get("interaction_polygon")
 		if ip != null and not (ip is Array and ip.is_empty()):
 			var drew := false
+			# Outlines are stored relative to the Perimeter child, whose position is
+			# cached in interaction_polygon_position.
+			var off: Vector2 = node.global_position
+			if node.get("interaction_polygon_position") != null:
+				off += node.interaction_polygon_position
 			if ip is Array:
 				for outline: PackedVector2Array in ip:
 					if outline.size() > 2:
-						_draw_poly(vt, node.global_position, outline, col)
+						_draw_poly(vt, off, outline, col)
 						drew = true
 			elif ip is PackedVector2Array and ip.size() > 2:
-				_draw_poly(vt, node.global_position, ip, col)
+				_draw_poly(vt, off, ip, col)
 				drew = true
 			if drew:
 				return
