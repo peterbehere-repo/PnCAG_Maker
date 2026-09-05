@@ -1782,7 +1782,7 @@ func _set_position_state(new_position: Vector2) -> void:
 # Updates the navigation path for the character based on the start and end positions.
 # The path is calculated by the room which has control over it's walkable areas and
 # obstacles.
-func _update_navigation_path(character: PopochiuCharacter, start_position: Vector2, end_position: Vector2):
+func _update_navigation_path(character: PopochiuCharacter, start_position: Vector2, end_position: Vector2) -> void:
 	# Get the current room
 	var current_room = PopochiuUtils.r.current
 	if not current_room:
@@ -1803,10 +1803,16 @@ func _update_navigation_path(character: PopochiuCharacter, start_position: Vecto
 	# forever and the character froze. Force the map update once, then retry;
 	# if still empty, fall back to a straight line to the target so walking
 	# always works on simple rooms.
+	# [FIX-web v2] The retry previously used `await` INSIDE a signal handler.
+	# On first click in web the nav map isn't ready, the first get_navigation_path
+	# returns empty, and the await suspends this handler BEFORE set_physics_process
+	# and movement can start. walk() has already awaited movement_ended by then,
+	# so the movement system desyncs and the character never walks. Replace the
+	# async retry with a synchronous one: update the nav map, query once more,
+	# and if still empty fall back to a straight line immediately. No suspend
+	# means set_physics_process(true) always runs in the same frame the walk starts.
 	if _navigation_path.is_empty():
 		current_room.update_navigation_obstacles()
-		# Give the nav server a moment to finish baking maps.
-		await get_tree().create_timer(0.05).timeout
 		_navigation_path = current_room.get_navigation_path(
 			start_position,
 			end_position,
