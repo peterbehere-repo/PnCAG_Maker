@@ -13,6 +13,13 @@ static var show_walkable := true
 static var show_props := true
 static var show_hotspots := true
 static var show_labels := true
+## Master switch: when false, panel + all overlays hide (backtick toggles this).
+static var overlays_enabled := true
+## Remember per-category states while the master switch is off.
+static var _prev_show_walkable := true
+static var _prev_show_props := true
+static var _prev_show_hotspots := true
+static var _prev_show_labels := true
 
 func _ready() -> void:
 	# [L1] The debug overlay is opt-out, not debug-build-only. Web deploys here are
@@ -150,8 +157,25 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
 		match event.keycode:
 			KEY_QUOTELEFT:
-				_panel.visible = not _panel.visible
-				print("[DBG] debug panel: %s" % _panel.visible)
+				overlays_enabled = not overlays_enabled
+				_panel.visible = overlays_enabled
+				# Master switch: hide or restore every category along with the panel.
+				if not overlays_enabled:
+					_prev_show_walkable = show_walkable
+					_prev_show_props = show_props
+					_prev_show_hotspots = show_hotspots
+					_prev_show_labels = show_labels
+					show_walkable = false
+					show_props = false
+					show_hotspots = false
+					show_labels = false
+				else:
+					show_walkable = _prev_show_walkable
+					show_props = _prev_show_props
+					show_hotspots = _prev_show_hotspots
+					show_labels = _prev_show_labels
+				print("[DBG] overlays: master=%s (walk=%s props=%s hot=%s labels=%s)" % [overlays_enabled, show_walkable, show_props, show_hotspots, show_labels])
+				_update()
 			KEY_1:
 				DebugOverlay.show_walkable = not DebugOverlay.show_walkable
 				print("[DBG] walkable overlay: %s" % DebugOverlay.show_walkable)
