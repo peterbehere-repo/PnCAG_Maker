@@ -15,10 +15,10 @@ static var show_hotspots := true
 static var show_labels := true
 
 func _ready() -> void:
-	# [L1] Release builds should not ship the debug overlay. It only runs in
-	# debug builds (editor or --debug exports). Keeping the autoload registered is
-	# harmless: the node exists but does nothing in release.
-	if not OS.is_debug_build():
+	# [L1] The debug overlay is opt-out, not debug-build-only. Web deploys here are
+	# always exported as release, so a debug-build gate would kill it everywhere.
+	# Instead, an explicit project setting disables it for a true final release.
+	if ProjectSettings.get_setting("game/debug/disable_debug_overlay", false):
 		visible = false
 		set_process(false)
 		set_process_input(false)
