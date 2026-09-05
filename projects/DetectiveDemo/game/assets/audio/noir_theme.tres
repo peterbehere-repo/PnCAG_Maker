@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="AudioCueMusic" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://addons/popochiu/engine/audio_manager/audio_cue_music.gd" id="1"]
-[ext_resource type="AudioStream" path="res://assets/audio/music/noir_theme_la3.wav" id="2"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/noir_theme_la3.ogg" id="2"]
 
 [resource]
 script = ExtResource("1")
