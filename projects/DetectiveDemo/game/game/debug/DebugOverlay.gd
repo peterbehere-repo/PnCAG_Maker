@@ -8,18 +8,9 @@ var _key_state := "?"
 var _panel: RichTextLabel
 var _area_drawer: Control = null
 
-## Per-category toggles for the scene overlays (static so the inner drawer can read them).
-static var show_walkable := true
-static var show_props := true
-static var show_hotspots := true
-static var show_labels := true
-## Master switch: when false, panel + all overlays hide (backtick toggles this).
+## The debug overlay: panel + all scene overlays, toggled together by backtick.
+## The drawer reads `overlays_enabled` to decide whether to draw anything.
 static var overlays_enabled := true
-## Remember per-category states while the master switch is off.
-static var _prev_show_walkable := true
-static var _prev_show_props := true
-static var _prev_show_hotspots := true
-static var _prev_show_labels := true
 
 func _ready() -> void:
 	# [L1] The debug overlay is opt-out, not debug-build-only. Web deploys here are
@@ -46,48 +37,7 @@ func _ready() -> void:
 	_panel.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
 	_panel.visible = true
 	add_child(_panel)
-	_create_toggle_bar()
 	_create_audio_gate()
-
-## On-screen toggle buttons for the overlay categories (for browser testing).
-func _create_toggle_bar() -> void:
-	var bar := HBoxContainer.new()
-	bar.name = "ToggleBar"
-	bar.position = Vector2(8, 440)
-	bar.add_theme_constant_override("separation", 8)
-	var cb_w := CheckButton.new()
-	cb_w.text = "W: Walk"
-	cb_w.button_pressed = true
-	cb_w.toggled.connect(func(on: bool) -> void:
-		DebugOverlay.show_walkable = on
-		_update()
-	)
-	bar.add_child(cb_w)
-	var cb_p := CheckButton.new()
-	cb_p.text = "P: Props"
-	cb_p.button_pressed = true
-	cb_p.toggled.connect(func(on: bool) -> void:
-		DebugOverlay.show_props = on
-		_update()
-	)
-	bar.add_child(cb_p)
-	var cb_h := CheckButton.new()
-	cb_h.text = "H: Hot"
-	cb_h.button_pressed = true
-	cb_h.toggled.connect(func(on: bool) -> void:
-		DebugOverlay.show_hotspots = on
-		_update()
-	)
-	bar.add_child(cb_h)
-	var cb_l := CheckButton.new()
-	cb_l.text = "L: Names"
-	cb_l.button_pressed = true
-	cb_l.toggled.connect(func(on: bool) -> void:
-		DebugOverlay.show_labels = on
-		_update()
-	)
-	bar.add_child(cb_l)
-	add_child(bar)
 
 ## Chrome/Windows autoplay policy: no audio until the first user gesture.
 ## A full-screen button guarantees a real gesture and unlocks the audio context.
@@ -159,38 +109,7 @@ func _input(event: InputEvent) -> void:
 			KEY_QUOTELEFT:
 				overlays_enabled = not overlays_enabled
 				_panel.visible = overlays_enabled
-				# Master switch: hide or restore every category along with the panel.
-				if not overlays_enabled:
-					_prev_show_walkable = show_walkable
-					_prev_show_props = show_props
-					_prev_show_hotspots = show_hotspots
-					_prev_show_labels = show_labels
-					show_walkable = false
-					show_props = false
-					show_hotspots = false
-					show_labels = false
-				else:
-					show_walkable = _prev_show_walkable
-					show_props = _prev_show_props
-					show_hotspots = _prev_show_hotspots
-					show_labels = _prev_show_labels
-				print("[DBG] overlays: master=%s (walk=%s props=%s hot=%s labels=%s)" % [overlays_enabled, show_walkable, show_props, show_hotspots, show_labels])
-				_update()
-			KEY_1:
-				DebugOverlay.show_walkable = not DebugOverlay.show_walkable
-				print("[DBG] walkable overlay: %s" % DebugOverlay.show_walkable)
-				_update()
-			KEY_2:
-				DebugOverlay.show_props = not DebugOverlay.show_props
-				print("[DBG] props overlay: %s" % DebugOverlay.show_props)
-				_update()
-			KEY_3:
-				DebugOverlay.show_hotspots = not DebugOverlay.show_hotspots
-				print("[DBG] hotspots overlay: %s" % DebugOverlay.show_hotspots)
-				_update()
-			KEY_4:
-				DebugOverlay.show_labels = not DebugOverlay.show_labels
-				print("[DBG] labels: %s" % DebugOverlay.show_labels)
+				print("[DBG] overlays: %s" % overlays_enabled)
 				_update()
 			KEY_F5:
 				print("[DBG] saving game slot 1...")
@@ -210,8 +129,8 @@ func _collect() -> Array:
 	if FileAccess.file_exists("res://game/debug/build_id.txt"):
 		bid = FileAccess.get_file_as_string("res://game/debug/build_id.txt").strip_edges()
 	l.append("build: %s" % bid)
-	l.append("toggles  [`]panel [1]walk [2]props [3]hot [4]names · F5 save F8 load")
-	l.append("show: W=%s P=%s H=%s N=%s" % [DebugOverlay.show_walkable, DebugOverlay.show_props, DebugOverlay.show_hotspots, DebugOverlay.show_labels])
+	l.append("toggles  [`] all debug · F5 save F8 load")
+	l.append("show: %s" % DebugOverlay.overlays_enabled)
 	if R:
 		var room = R.current
 		l.append("room: %s" % (room.script_name if room else "NO ROOM"))
@@ -273,15 +192,11 @@ class AreaDrawer extends Control:
 			return
 		var vt := get_viewport_transform()
 		# walkable areas (green)
-		if DebugOverlay.show_walkable:
+		if DebugOverlay.overlays_enabled:
 			for wa in get_tree().get_nodes_in_group("walkable_areas"):
 				_draw_clickable(wa, vt, Color(0.2, 1, 0.3, 0.9))
-		# props (orange)
-		if DebugOverlay.show_props:
 			for pr in get_tree().get_nodes_in_group("props"):
 				_draw_clickable(pr, vt, Color(1, 0.6, 0.1, 0.9))
-		# hotspots (cyan)
-		if DebugOverlay.show_hotspots:
 			for hs in get_tree().get_nodes_in_group("hotspots"):
 				_draw_clickable(hs, vt, Color(0.2, 0.9, 1, 0.9))
 	func _draw_poly(vt: Transform2D, origin: Vector2, pts: PackedVector2Array, col: Color) -> void:
@@ -318,13 +233,11 @@ class AreaDrawer extends Control:
 				for outline: PackedVector2Array in ip:
 					if outline.size() > 2:
 						_draw_poly(vt, off, outline, col)
-						if DebugOverlay.show_labels:
-							_draw_centroid_label(node.name, vt, off, outline, col)
+						_draw_centroid_label(node.name, vt, off, outline, col)
 						drew = true
 			elif ip is PackedVector2Array and ip.size() > 2:
 				_draw_poly(vt, off, ip, col)
-				if DebugOverlay.show_labels:
-					_draw_centroid_label(node.name, vt, off, ip, col)
+				_draw_centroid_label(node.name, vt, off, ip, col)
 				drew = true
 			if drew:
 				return
@@ -345,12 +258,11 @@ class AreaDrawer extends Control:
 					pts.append(vt * (node.global_position + p))
 				pts.append(pts[0])
 				draw_polyline(pts, col, 2.0)
-				if DebugOverlay.show_labels:
-					var c := Vector2.ZERO
-					for p in child.get_polygon():
-						c += vt * (node.global_position + p)
-					c /= child.get_polygon().size()
-					_draw_name_label(node.name, c, col)
+				var c := Vector2.ZERO
+				for p in child.get_polygon():
+					c += vt * (node.global_position + p)
+				c /= child.get_polygon().size()
+				_draw_name_label(node.name, c, col)
 			elif child is CollisionShape2D and child.shape:
 				var r := Rect2()
 				if child.shape is RectangleShape2D:
@@ -359,8 +271,7 @@ class AreaDrawer extends Control:
 					for corner in [r.position, r.position + Vector2(r.size.x,0), r.position + r.size, r.position + Vector2(0,r.size.y), r.position]:
 						pts.append(vt * (node.global_position + child.position + corner))
 					draw_polyline(pts, col, 2.0)
-					if DebugOverlay.show_labels:
-						_draw_name_label(node.name, vt * (node.global_position + child.position), col)
+					_draw_name_label(node.name, vt * (node.global_position + child.position), col)
 
 	func _draw_name_label(text: String, pos: Vector2, col: Color) -> void:
 		var fnt := ThemeDB.fallback_font
