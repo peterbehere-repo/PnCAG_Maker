@@ -16,6 +16,9 @@ func _on_room_entered() -> void:
 	if not A.is_playing_cue("ambience_study"):
 		A.ambience_study.play()
 		print("[ROOM] ambience play() called; playing=", A.is_playing_cue("ambience_study"))
+	if not A.is_playing_cue("noir_theme"):
+		A.noir_theme.play()
+		print("[ROOM] noir_theme play() called; playing=", A.is_playing_cue("noir_theme"))
 
 func _on_room_transition_finished() -> void:
 	print("[ROOM] transition done; is_current=", is_current, " proc_uh=", is_processing_unhandled_input(), " blocked=", G.is_blocked if G else "?", " in_room=", E.in_room if E else "?")

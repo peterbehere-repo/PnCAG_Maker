@@ -20,6 +20,7 @@ A="*res://game/autoloads/a.gd"
 G="*res://addons/popochiu/engine/interfaces/i_graphic_interface.gd"
 T="*res://addons/popochiu/engine/interfaces/i_transition_layer.gd"
 DebugOverlay="*res://game/debug/DebugOverlay.gd"
+QARunner="*res://game/qa/QA_Runner.gd"
 
 [display]
 window/size/viewport_width=1920
@@ -86,3 +87,5 @@ textures/vram_compression/import_etc2_astc=true
 [game]
 # Debug overlay: keep enabled for test builds. Set to true for a final release.
 debug/disable_debug_overlay=false
+# QA harness: only runs when PNCAG_QA=1 (never in browser).
+debug/qa_mode=false

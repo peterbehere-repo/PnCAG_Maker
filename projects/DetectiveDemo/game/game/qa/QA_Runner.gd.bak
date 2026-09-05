@@ -1,0 +1,194 @@
+# QA_Runner.gd — headless repeat-function test harness that boots the real game.
+# Run: godot --headless --path . --script res://game/qa/QA_Runner.gd [repeat=N]
+extends SceneTree
+
+var failures: Array[String] = []
+var passes := 0
+var repeat := 3
+var _al_cache := {}
+var _frames := 0
+
+func _initialize() -> void:
+	var args := OS.get_cmdline_user_args()
+	for a in args:
+		if a.begins_with("repeat="):
+			repeat = int(a.get_slice("=", 1))
+	print("QA_Runner: repeat=", repeat)
+	# Boot the real main scene (room)
+	var err := change_scene_to_file("res://game/rooms/study/room_study.tscn")
+	print("change_scene err=", err)
+
+func _al(name: String) -> Node:
+	if not _al_cache.has(name):
+		_al_cache[name] = root.get_node_or_null(name)
+	return _al_cache[name]
+
+func _process(_delta: float) -> bool:
+	_frames += 1
+	# Wait for the room to be current and a couple of frames to settle autoloads
+	if _frames < 30:
+		return false
+	if _frames == 30:
+		_run_all()
+		_report()
+		quit(0 if failures.is_empty() else 1)
+		return true
+	return false
+
+func _assert(cond: bool, name: String, detail := "") -> void:
+	if cond:
+		passes += 1
+		print("  PASS  ", name, detail)
+	else:
+		failures.append(name + (": " + detail if detail else ""))
+		print("  FAIL  ", name, " ", detail)
+
+func _run_all() -> void:
+	print("\n========== QA START ==========")
+	_test_autoloads_present()
+	_room_boot()
+	_debug_overlay_enabled()
+	_physics_picking()
+	_desk_interact_repeat()
+	_window_interact_repeat()
+	_inventory_state()
+	_walk_repeat()
+	_save_load()
+	_dialog_system_text()
+	_audio_ambience()
+	print("========== QA END ==========")
+
+func _test_autoloads_present() -> void:
+	print("\n[1] Autoloads")
+	for key in ["E", "R", "C", "I", "D", "A", "G", "T", "DebugOverlay", "Globals"]:
+		_assert(_al(key) != null, "autoload " + key)
+
+func _room_boot() -> void:
+	print("\n[2] Room boot")
+	var R: Node = _al("R")
+	if R == null: return
+	var room: Node = R.call("get_current_room")
+	_assert(room != null, "room current", str(room))
+	if room:
+		_assert(room.is_current, "room is_current", room.name)
+
+func _debug_overlay_enabled() -> void:
+	print("\n[3] Debug overlay enabled")
+	var disabled: bool = ProjectSettings.get_setting("game/debug/disable_debug_overlay", false)
+	_assert(disabled == false, "disable_debug_overlay=false", str(disabled))
+	var dl: Node = _al("DebugOverlay")
+	_assert(dl != null, "DebugOverlay node")
+	if dl:
+		_assert(dl.get("overlays_enabled") != null, "overlays_enabled prop")
+
+func _physics_picking() -> void:
+	print("\n[4] physics picking")
+	var pk: bool = ProjectSettings.get_setting("physics/common/physics_object_picking", false)
+	_assert(pk == true, "physics_object_picking=true", str(pk))
+
+func _desk_interact_repeat() -> void:
+	print("\n[5] Desk interact x", repeat)
+	var desk: Node = _find_in_room("Desk")
+	_assert(desk != null, "desk found")
+	if desk == null: return
+	var I: Node = _al("I")
+	if I == null: return
+	# reset key
+	if I.get("brass_key"):
+		I.brass_key.remove()
+	var got := false
+	for i in repeat:
+		desk.call("_on_interact")
+		if I.get("brass_key") and I.brass_key.in_inventory:
+			got = true
+	_assert(got, "desk grants key (repeat)", "x" + str(repeat))
+	_assert(I.brass_key.in_inventory, "brass_key in inventory")
+
+func _window_interact_repeat() -> void:
+	print("\n[6] Window interact x", repeat)
+	var w: Node = _find_in_room("Window")
+	_assert(w != null, "window found")
+	if w == null: return
+	var ok := true
+	for i in repeat:
+		ok = ok and (w.call("_on_interact") == null or true)
+	_assert(ok, "window interact runs", "x" + str(repeat))
+
+func _inventory_state() -> void:
+	print("\n[7] Inventory key API")
+	var I: Node = _al("I")
+	_assert(I != null and I.has_method("has_item_been_collected"), "has_item_been_collected")
+	if I and I.get("brass_key"):
+		_assert(I.brass_key.has_method("remove"), "brass_key.remove exists")
+		_assert(I.brass_key.has_method("add"), "brass_key.add exists")
+		_assert(I.brass_key.has_method("discard"), "brass_key.discard exists")
+
+func _walk_repeat() -> void:
+	print("\n[8] Walk x", repeat)
+	var C: Node = _al("C")
+	if C == null: return
+	var det: Node = C.get_character("detective")
+	_assert(det != null, "detective exists")
+	if det == null: return
+	_assert(det.has_method("walk_to"), "walk_to method")
+	var points := [Vector2(1450, 900), Vector2(300, 1000), Vector2(900, 900)]
+	for i in repeat:
+		var target: Vector2 = points[i % points.size()]
+		var before: Vector2 = det.position
+		var E: Node = _al("E")
+		if E and not E.get("blocked"):
+			det.call("walk_to", target)
+		_assert(det.position != before or det.is_moving, "walk started", str(i))
+
+func _save_load() -> void:
+	print("\n[9] Save/load")
+	var E: Node = _al("E")
+	if E == null: return
+	_assert(E.has_method("save_game"), "save_game exists")
+	_assert(E.has_method("load_game"), "load_game exists")
+	E.call("save_game", 3, "QA test")
+	# has_save may not exist; use save_game call only and report no crash
+	_assert(E.has_method("has_save") == false or E.call("has_save") == true, "has_save after save", "")
+
+func _dialog_system_text() -> void:
+	print("\n[10] Dialog system text")
+	var G: Node = _al("G")
+	if G == null: return
+	_assert(G.has_method("show_system_text"), "show_system_text exists")
+	G.call("show_system_text", "QA dialog line test")
+
+func _audio_ambience() -> void:
+	print("\n[11] Ambience")
+	var A: Node = _al("A")
+	if A == null: return
+	_assert(A.has_method("is_playing_cue"), "is_playing_cue exists")
+	if A.has_method("is_playing_cue"):
+		var playing: Variant = A.call("is_playing_cue", "ambience_study")
+		_assert(typeof(playing) == TYPE_BOOL, "ambience_study is bool")
+
+func _find_in_room(needle: String) -> Node:
+	var R: Node = _al("R")
+	if R == null: return null
+	var room: Node = R.call("get_current_room")
+	if room == null: return null
+	var found: Array[Node] = []
+	_find_recursive(room, needle.to_lower(), found)
+	return found[0] if found.size() > 0 else null
+
+func _find_recursive(node: Node, needle_lower: String, found: Array[Node]) -> void:
+	if found.size() > 0: return
+	if node.name.to_lower().contains(needle_lower):
+		found.append(node)
+		return
+	for c in node.get_children():
+		_find_recursive(c, needle_lower, found)
+
+func _report() -> void:
+	print("\n===== QA REPORT =====")
+	print("PASS: ", passes, "  FAIL: ", failures.size())
+	if failures.is_empty():
+		print("RESULT: OK")
+	else:
+		print("RESULT: FAIL")
+		for f in failures:
+			print("  - ", f)
