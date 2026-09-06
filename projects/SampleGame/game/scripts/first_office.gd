@@ -1,5 +1,15 @@
 extends Node2D
 
+## Desk-sit state machine: click the keyboard to sit, click again to get up.
+## Baked sprite (pi_desk_sit_baked.png) includes the desk, so PI's walk sprite
+## must be hidden while seated - no layering math at runtime.
+
+const SIT_SPOT := Vector2(845, 745)      # walk target before sitting
+const KEYBOARD_RECT := Rect2(655, 460, 260, 90)  # scene-space keys area
+
+var _sitting := false
+var _sit_pending := false
+
 const HOTSPOTS := [
 	{
 		"rect": Rect2(105, 155, 320, 270),
@@ -33,11 +43,49 @@ const HOVER_AREAS := [
 @onready var status_label: Label = $Interface/StatusPanel/Status
 @onready var scene_interact_zones: Control = $"Interface/Scene Interact Zones"
 @onready var popochiu_hotspots: CanvasLayer = $PopochiuHotspots
+@onready var pi: AnimatedSprite2D = $Pi
+@onready var desk_sit: Sprite2D = $DeskSit
 var _hovered_label := ""
 var _gui_was_blocked := false
 
 
+func _sit_down() -> void:
+	_sitting = true
+	pi.visible = false
+	desk_sit.visible = true
+	status_label.text = "PI IS AT THE DESK  //  CLICK KEYBOARD TO GET UP"
+
+
+func _get_up() -> void:
+	_sitting = false
+	desk_sit.visible = false
+	pi.visible = true
+	pi.global_position = SIT_SPOT
+	pi.play(&"idle")
+	status_label.text = "ROOM READY  //  LEFT CLICK TO INTERACT"
+
+
+func _try_keyboard_click(position: Vector2) -> bool:
+	if not KEYBOARD_RECT.has_point(position):
+		return false
+	if _sitting:
+		_get_up()
+	elif not _sit_pending:
+		_sit_pending = true
+		status_label.text = "SITTING..."
+		pi.walk_to(SIT_SPOT)
+	get_viewport().set_input_as_handled()
+	return true
+
+
+func _on_pi_arrived() -> void:
+	if _sit_pending:
+		_sit_pending = false
+		_sit_down()
+
+
 func _ready() -> void:
+	pi.movement_finished.connect(_on_pi_arrived)
 	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 	status_label.text = "ROOM READY  //  LEFT CLICK TO INTERACT  //  RIGHT CLICK TO EXAMINE"
 
@@ -71,12 +119,25 @@ func _input(event: InputEvent) -> void:
 		return
 
 	var position := _viewport_to_image(event.position)
+	if _try_keyboard_click(position):
+		return
 	for hotspot: Dictionary in HOTSPOTS:
 		if hotspot.rect.has_point(position):
 			var action: String = "interact" if event.button_index == MOUSE_BUTTON_LEFT else "examine"
 			status_label.text = "%s  //  %s" % [hotspot.name.to_upper(), hotspot[action]]
 			get_viewport().set_input_as_handled()
 			return
+
+	# Click on open floor -> PI walks there (disabled while at the desk).
+	if event.button_index == MOUSE_BUTTON_LEFT and pi.FLOOR_RECT.has_point(position):
+		if _sitting:
+			status_label.text = "CLICK THE KEYBOARD TO GET UP"
+			get_viewport().set_input_as_handled()
+			return
+		pi.walk_to(position)
+		status_label.text = "MOVING"
+		get_viewport().set_input_as_handled()
+		return
 
 	status_label.text = "NOTHING OF INTEREST HERE  //  TRY THE OFFICE HOTSPOTS"
 
@@ -88,6 +149,8 @@ func _update_hover(viewport_position: Vector2) -> void:
 		if area.rect.has_point(image_position):
 			current_label = area.label
 			break
+	if current_label.is_empty() and KEYBOARD_RECT.has_point(image_position):
+		current_label = "use computer" if not _sitting else "get up"
 
 	if current_label == _hovered_label:
 		return

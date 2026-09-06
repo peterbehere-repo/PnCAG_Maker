@@ -1,23 +1,39 @@
 extends AnimatedSprite2D
+## PI character controller - walks along the office floor.
 
-const FRAME_SIZE := Vector2(176, 192)
-const TYPING_SHEET := preload("res://assets/sprites/pi/pi_typing_32f.png")
+signal movement_finished
+
+const WALK_SPEED := 240.0
+const FLOOR_RECT := Rect2(60, 700, 1288, 58)
+
+var _target := Vector2.ZERO
+var _moving := false
 
 
 func _ready() -> void:
-	randomize()
-	var frames := SpriteFrames.new()
-	var typing_frames: Array[AtlasTexture] = []
-	for frame_index in 32:
-		var frame := AtlasTexture.new()
-		frame.atlas = TYPING_SHEET
-		frame.region = Rect2(frame_index * FRAME_SIZE.x, 0, FRAME_SIZE.x, FRAME_SIZE.y)
-		typing_frames.append(frame)
-	frames.add_animation(&"typing")
-	frames.set_animation_loop(&"typing", true)
-	frames.set_animation_speed(&"typing", 8.0)
-	for frame in typing_frames:
-		frames.add_frame(&"typing", frame)
-	sprite_frames = frames
-	play(&"typing")
+	play(&"idle")
+
+
+func walk_to(point: Vector2) -> void:
+	_target = Vector2(
+		clampf(point.x, FLOOR_RECT.position.x, FLOOR_RECT.end.x),
+		clampf(point.y, FLOOR_RECT.position.y, FLOOR_RECT.end.y)
+	)
+	_moving = true
+	flip_h = _target.x < global_position.x
+	play(&"walk")
+
+
+func _process(delta: float) -> void:
+	if not _moving:
+		return
+	var to_target := _target - global_position
+	var step := WALK_SPEED * delta
+	if to_target.length() <= step:
+		global_position = _target
+		_moving = false
+		play(&"idle")
+		movement_finished.emit()
+		return
+	global_position += to_target.normalized() * step
 
