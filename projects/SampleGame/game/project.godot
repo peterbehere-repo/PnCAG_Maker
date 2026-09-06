@@ -28,7 +28,6 @@ G="res://game/autoloads/g.gd"
 T="res://addons/popochiu/engine/interfaces/i_transition_layer.gd"
 QA="res://game/qa/QA_Runner.gd"
 BB="res://game/qa/browser_bridge.gd"
-DL="res://game/qa/diag_layer.gd"
 
 [display]
 
