@@ -1,0 +1,61 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Sample Game - First Office"
+run/main_scene="res://scenes/first_office.tscn"
+config/features=PackedStringArray("4.6")
+
+[autoload]
+
+Globals="res://game/popochiu_globals.gd"
+Cursor="res://addons/popochiu/engine/cursor/cursor.tscn"
+E="res://addons/popochiu/engine/popochiu.tscn"
+R="res://game/autoloads/r.gd"
+C="res://game/autoloads/c.gd"
+I="res://game/autoloads/i.gd"
+D="res://game/autoloads/d.gd"
+A="res://game/autoloads/a.gd"
+G="res://game/autoloads/g.gd"
+T="res://addons/popochiu/engine/interfaces/i_transition_layer.gd"
+QA="res://game/qa/QA_Runner.gd"
+
+[display]
+
+window/size/viewport_width=1408
+window/size/viewport_height=768
+window/size/window_width_override=1408
+window/size/window_height_override=768
+window/stretch/mode="canvas_items"
+
+[gdproject]
+
+run_mode="run_in_development"
+run_project_path="."
+editor_layout="default"
+editor_theme="default"
+font_size="12"
+language="en"
+
+[popochiu]
+
+dev/use_addon_template=true
+
+[audio]
+
+default_bus_layout="res://default_bus_layout.tres"
+
+[rendering]
+
+textures/canvas_textures/default_texture_filter=0
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+environment/defaults/default_clear_color=Color(0.03, 0.04, 0.06, 1)

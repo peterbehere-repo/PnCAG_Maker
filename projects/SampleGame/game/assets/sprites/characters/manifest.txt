@@ -1,0 +1,13 @@
+Neo-noir detective character sprites (256color, scale 3x)
+- protagonist_private_eye: protagonist
+- antagonist_corp_baron: antagonist
+- android_partner: ally
+- street_informant: support
+- forensic_hacker: support
+- agency_chief: support
+- cyber_doc: support
+- bounty_hunter: neutral
+- undercover_cop: ally
+- night_club_singer: neutral
+- mechanic: support
+- rogue_ai_avatar: antagonist

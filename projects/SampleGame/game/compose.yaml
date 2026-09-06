@@ -1,0 +1,40 @@
+services:
+  popochiu-init:
+    build:
+      context: .
+    image: sample-game-godot-studio:local
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["test -d /target/popochiu || cp -a /opt/popochiu/addons/. /target/; mkdir -p /project-data; chown -R ${PUID:-1000}:${PGID:-1000} /target /project-data"]
+    user: root
+    volumes:
+      - godot-addons:/target
+      - godot-project-data:/project-data
+    restart: "no"
+
+  godot-studio:
+    image: sample-game-godot-studio:local
+    container_name: sample-game-godot-studio
+    depends_on:
+      popochiu-init:
+        condition: service_completed_successfully
+    environment:
+      PUID: "${PUID:-1000}"
+      PGID: "${PGID:-1000}"
+      TZ: "${TZ:-Etc/UTC}"
+      TITLE: "Godot Popochiu Studio"
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+    volumes:
+      - .:/workspace
+      - godot-addons:/workspace/addons
+      - godot-project-data:/workspace/.godot
+      - godot-user-data:/config
+    working_dir: /workspace
+    shm_size: 1gb
+    restart: unless-stopped
+
+volumes:
+  godot-addons:
+  godot-project-data:
+  godot-user-data:
