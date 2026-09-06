@@ -43,14 +43,15 @@ func _process(_delta: float) -> bool:
 			if _frames > 30:
 				_assert(main.name == "FirstOffice", "scene booted")
 				_assert(main.get_node("Pi") != null, "PI present")
-				_assert(not main.get_node("DeskSit").visible, "DeskSit hidden at boot")
+				_assert(not main.get_node("DeskSitLayer").visible, "DeskSit hidden at boot")
 				_click(Vector2(785, 505))   # keyboard
 				_phase = "walking"
 				_t = 0
 		"walking":
 			_t += 1
-			if main.get_node("DeskSit").visible:
-				_assert(true, "DeskSit visible after walk+sit")
+			if main.get_node("DeskSitLayer").visible:
+				_assert(main.get_node("DeskSitLayer").layer == 7, "DeskSit layer=7 (matches bg transform space)")
+				_assert(main.get_node("DeskSitLayer/DeskSit").texture.get_size() == Vector2(1408, 768), "sit texture full-scene 1408x768")
 				_assert(not main.get_node("Pi").visible, "walk sprite hidden while seated")
 				_click(Vector2(785, 505))   # get up
 				_phase = "getting_up"
@@ -62,7 +63,7 @@ func _process(_delta: float) -> bool:
 			_t += 1
 			if main.get_node("Pi").visible:
 				_assert(main.get_node("Pi").global_position.distance_to(Vector2(845, 745)) < 2.0, "PI restored at sit spot")
-				_assert(not main.get_node("DeskSit").visible, "DeskSit hidden after get up")
+				_assert(not main.get_node("DeskSitLayer").visible, "DeskSit hidden after get up")
 				return _done()
 			elif _t > 500:
 				_assert(false, "PI never stood up")

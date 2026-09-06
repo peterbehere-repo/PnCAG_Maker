@@ -44,7 +44,7 @@ const HOVER_AREAS := [
 @onready var scene_interact_zones: Control = $"Interface/Scene Interact Zones"
 @onready var popochiu_hotspots: CanvasLayer = $PopochiuHotspots
 @onready var pi: AnimatedSprite2D = $Pi
-@onready var desk_sit: Sprite2D = $DeskSit
+@onready var desk_sit: CanvasLayer = $DeskSitLayer
 var _hovered_label := ""
 var _gui_was_blocked := false
 
