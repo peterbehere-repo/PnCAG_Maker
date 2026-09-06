@@ -13,6 +13,9 @@ const AREAS := [
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Debug overlay only in QA mode (project setting or PNCAG_QA=1 env).
+	var qa: bool = ProjectSettings.get_setting("game/debug/qa_mode", false) or OS.get_environment("PNCAG_QA") == "1"
+	visible = qa
 	queue_redraw()
 
 

@@ -14,17 +14,22 @@ var repeat := 3
 var _started := false
 var _frames := 0
 
+var _armed := false
+
 func _ready() -> void:
 	var qa_env := OS.get_environment("PNCAG_QA")
-	var qa_setting: bool = ProjectSettings.get_setting("game/debug/qa_mode", true)
+	var qa_setting: bool = ProjectSettings.get_setting("game/debug/qa_mode", false)
 	if qa_env != "1" and not qa_setting:
 		return
+	_armed = true
 	print("QA_Runner: armed (repeat=", repeat, ") scene=", MAIN_SCENE)
 
 func _process(_delta: float) -> void:
 	_frames += 1
 	var main: Node = get_tree().current_scene
 	# Wait for the main scene to be loaded and settled (or 120-frame cap)
+	if not _armed:
+		return
 	var ready := main != null
 	if _frames >= 120:
 		ready = true
@@ -124,19 +129,24 @@ func _pi_character_and_sprites() -> void:
 	_assert(pi != null, "pi character found")
 	if pi == null: return
 	# Pi's AnimatedSprite2D is at PiLayer/Pi; _find_in_main matched the CanvasLayer.
-	var pi_sprite: Node = get_tree().current_scene.get_node_or_null("PiLayer/Pi")
-	_assert(pi_sprite != null, "Pi AnimatedSprite2D at PiLayer/Pi")
+	var pi_sprite: Node = get_tree().current_scene.get_node_or_null("Pi")
+	_assert(pi_sprite != null, "Pi AnimatedSprite2D in room world")
+	if pi_sprite == null: return
 	pi = pi_sprite if pi_sprite != null else pi
 	var pf: SpriteFrames = pi.get("sprite_frames") if pi.get("sprite_frames") != null else null
-	var anim: String = str(pi.get("animation"))
 	_assert(pf != null, "pi has sprite_frames")
-	_assert(anim == "typing", "pi animation == typing", anim)
-	_assert(pi.get("script") != null or pi.get_script() != null, "pi has script attached")
-	# Assert the sprite sheet resource is loadable
-	var sheet := load("res://assets/sprites/pi/pi_typing_32f.png")
-	_assert(sheet != null, "pi typing sheet loadable")
-	var idle := load("res://assets/sprites/pi/pi_idle.png")
-	_assert(idle != null, "pi idle sheet loadable")
+	if pf != null:
+		_assert(pf.has_animation("idle"), "pi idle animation")
+		_assert(pf.has_animation("walk"), "pi walk animation")
+	_assert(pi.get_script() != null, "pi has script attached")
+	var sheet := load("res://assets/sprites/pi/pi_walk_idle_sheet.png")
+	_assert(sheet != null, "pi walk/idle sheet loadable")
+	# Floor-walk smoke test: command PI to walk and verify it moves.
+	var start: Vector2 = pi.global_position
+	pi.walk_to(start + Vector2(200, 0))
+	_assert(pi.get("_moving") == true, "pi walking state engaged")
+	var anim: String = str(pi.get("animation"))
+	_assert(anim == "walk", "pi animation == walk", anim)
 
 func _audio_cue() -> void:
 	print("\n[6] Audio cue")
