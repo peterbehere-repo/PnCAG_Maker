@@ -1,0 +1,8 @@
+{
+  "name": "Godot 4.6 Popochiu Studio",
+  "dockerComposeFile": "../compose.yaml",
+  "service": "godot-studio",
+  "workspaceFolder": "/workspace",
+  "remoteUser": "abc",
+  "shutdownAction": "stopCompose"
+}

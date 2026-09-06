@@ -1,0 +1,235 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/concept_art/sample office scene.png" id="1_background"]
+[ext_resource type="Script" path="res://scripts/first_office.gd" id="2_script"]
+[ext_resource type="Script" path="res://scripts/region_overlay.gd" id="3_overlay"]
+[ext_resource type="Script" path="res://addons/popochiu/engine/objects/hotspot/popochiu_hotspot.gd" id="4_hotspot"]
+[ext_resource type="AudioStream" path="res://assets/audio/Neon Rain in Sector 7.mp3" id="5_music"]
+[ext_resource type="Texture2D" path="res://assets/sprites/pi/pi_idle.png" id="6_pi"]
+[ext_resource type="Script" path="res://scripts/pi_idle.gd" id="7_pi_script"]
+[ext_resource type="Texture2D" path="res://assets/sprites/pi/pi_typing_32f.png" id="8_pi_sheet"]
+[ext_resource type="Texture2D" path="res://assets/art/desk_foreground.png" id="9_desk"]
+
+[sub_resource type="AtlasTexture" id="PiTyping0"]
+atlas = ExtResource("6_pi")
+region = Rect2(0, 0, 96, 112)
+
+[sub_resource type="AtlasTexture" id="PiTyping1"]
+atlas = ExtResource("6_pi")
+region = Rect2(96, 0, 96, 112)
+
+[sub_resource type="AtlasTexture" id="PiTyping2"]
+atlas = ExtResource("6_pi")
+region = Rect2(192, 0, 96, 112)
+
+[sub_resource type="AtlasTexture" id="PiBack0"]
+atlas = ExtResource("6_pi")
+region = Rect2(288, 0, 96, 112)
+
+[sub_resource type="AtlasTexture" id="PiBack1"]
+atlas = ExtResource("6_pi")
+region = Rect2(384, 0, 96, 112)
+
+[sub_resource type="AtlasTexture" id="PiBack2"]
+atlas = ExtResource("6_pi")
+region = Rect2(480, 0, 96, 112)
+
+[sub_resource type="AtlasTexture" id="PiSigh0"]
+atlas = ExtResource("6_pi")
+region = Rect2(576, 0, 96, 112)
+
+[sub_resource type="AtlasTexture" id="PiSigh1"]
+atlas = ExtResource("6_pi")
+region = Rect2(672, 0, 96, 112)
+
+[sub_resource type="AtlasTexture" id="PiSigh2"]
+atlas = ExtResource("6_pi")
+region = Rect2(768, 0, 96, 112)
+
+[sub_resource type="SpriteFrames" id="PiFrames"]
+animations = [{
+"frames": [{"duration": 1.0, "texture": SubResource("PiTyping0")}, {"duration": 1.0, "texture": SubResource("PiTyping1")}, {"duration": 1.0, "texture": SubResource("PiTyping2")}],
+"loop": false,
+"name": &"typing",
+"speed": 4.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("PiBack0")}, {"duration": 1.0, "texture": SubResource("PiBack1")}, {"duration": 1.0, "texture": SubResource("PiBack2")}],
+"loop": false,
+"name": &"sitting_back",
+"speed": 2.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("PiSigh0")}, {"duration": 1.0, "texture": SubResource("PiSigh1")}, {"duration": 1.0, "texture": SubResource("PiSigh2")}],
+"loop": false,
+"name": &"sigh",
+"speed": 2.0
+}]
+
+[node name="FirstOffice" type="Node2D"]
+script = ExtResource("2_script")
+
+[node name="OfficeMusic" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_music")
+autoplay = true
+volume_db = -12.0
+bus = &"Music"
+
+[node name="PiLayer" type="CanvasLayer" parent="."]
+layer = 0
+
+[node name="Pi" type="AnimatedSprite2D" parent="PiLayer"]
+position = Vector2(930, 400)
+scale = Vector2(1.0, 1.0)
+z_index = 2
+sprite_frames = SubResource("PiFrames")
+animation = &"typing"
+script = ExtResource("7_pi_script")
+
+[node name="DeskForegroundLayer" type="CanvasLayer" parent="."]
+layer = 3
+
+[node name="DeskForeground" type="TextureRect" parent="DeskForegroundLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture_filter = 1
+texture = ExtResource("9_desk")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="BackgroundLayer" type="CanvasLayer" parent="."]
+layer = -10
+
+[node name="Background" type="TextureRect" parent="BackgroundLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture_filter = 1
+texture = ExtResource("1_background")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="PopochiuHotspots" type="CanvasLayer" parent="."]
+layer = 5
+
+[node name="Chair" type="Area2D" parent="PopochiuHotspots"]
+position = Vector2(932.5, 522.5)
+script = ExtResource("4_hotspot")
+script_name = "Chair"
+description = "chair"
+interaction_polygon = PackedVector2Array(-112.5, -70, 112.5, -70, 112.5, 70, -112.5, 70)
+
+[node name="InteractionPolygon" type="CollisionPolygon2D" parent="PopochiuHotspots/Chair"]
+polygon = PackedVector2Array(-112.5, -70, 112.5, -70, 112.5, 70, -112.5, 70)
+
+[node name="Computer" type="Area2D" parent="PopochiuHotspots"]
+position = Vector2(527.5, 447.5)
+script = ExtResource("4_hotspot")
+script_name = "Computer"
+description = "computer"
+interaction_polygon = PackedVector2Array(-102.5, -112.5, 102.5, -112.5, 102.5, 112.5, -102.5, 112.5)
+
+[node name="InteractionPolygon" type="CollisionPolygon2D" parent="PopochiuHotspots/Computer"]
+polygon = PackedVector2Array(-102.5, -112.5, 102.5, -112.5, 102.5, 112.5, -102.5, 112.5)
+
+[node name="Window" type="Area2D" parent="PopochiuHotspots"]
+position = Vector2(450, 225)
+script = ExtResource("4_hotspot")
+script_name = "Window"
+description = "window"
+interaction_polygon = PackedVector2Array(-260, -145, 260, -145, 260, 145, -260, 145)
+
+[node name="InteractionPolygon" type="CollisionPolygon2D" parent="PopochiuHotspots/Window"]
+polygon = PackedVector2Array(-260, -145, 260, -145, 260, 145, -260, 145)
+
+[node name="Radio" type="Area2D" parent="PopochiuHotspots"]
+position = Vector2(847.5, 582.5)
+script = ExtResource("4_hotspot")
+script_name = "Radio"
+description = "radio"
+interaction_polygon = PackedVector2Array(-72.5, -62.5, 72.5, -62.5, 72.5, 62.5, -72.5, 62.5)
+
+[node name="InteractionPolygon" type="CollisionPolygon2D" parent="PopochiuHotspots/Radio"]
+polygon = PackedVector2Array(-72.5, -62.5, 72.5, -62.5, 72.5, 62.5, -72.5, 62.5)
+
+[node name="FileCabinet" type="Area2D" parent="PopochiuHotspots"]
+position = Vector2(152.5, 535)
+script = ExtResource("4_hotspot")
+script_name = "FileCabinet"
+description = "file cabinet"
+interaction_polygon = PackedVector2Array(-92.5, -145, 92.5, -145, 92.5, 145, -92.5, 145)
+
+[node name="InteractionPolygon" type="CollisionPolygon2D" parent="PopochiuHotspots/FileCabinet"]
+polygon = PackedVector2Array(-92.5, -145, 92.5, -145, 92.5, 145, -92.5, 145)
+
+[node name="Drawers" type="Area2D" parent="PopochiuHotspots"]
+position = Vector2(1324, 590)
+script = ExtResource("4_hotspot")
+script_name = "Drawers"
+description = "drawers"
+interaction_polygon = PackedVector2Array(-84, -115, 84, -115, 84, 115, -84, 115)
+
+[node name="InteractionPolygon" type="CollisionPolygon2D" parent="PopochiuHotspots/Drawers"]
+polygon = PackedVector2Array(-84, -115, 84, -115, 84, 115, -84, 115)
+
+[node name="Interface" type="CanvasLayer" parent="."]
+layer = 30
+
+[node name="StatusPanel" type="ColorRect" parent="Interface"]
+offset_left = 28.0
+offset_top = 708.0
+offset_right = 1380.0
+offset_bottom = 750.0
+mouse_filter = 2
+color = Color(0.035, 0.055, 0.075, 0.92)
+
+[node name="Scene Interact Zones" type="Control" parent="Interface"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+z_index = 10
+script = ExtResource("3_overlay")
+
+[node name="Status" type="Label" parent="Interface/StatusPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_right = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.61, 0.91, 0.88, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.7)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 16
+text = "ROOM READY  //  LEFT CLICK TO INTERACT  //  RIGHT CLICK TO EXAMINE"
+vertical_alignment = 1
+
+[node name="HoverHint" type="Label" parent="Interface"]
+z_index = 20
+offset_left = 32.0
+offset_top = 62.0
+offset_right = 520.0
+offset_bottom = 92.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.8, 0.88, 0.86, 0.95)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 16
+text = "MOVE THE CURSOR INSIDE A BOX TO TEST HOVER LABELS"
+
+
