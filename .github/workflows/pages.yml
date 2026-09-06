@@ -32,21 +32,26 @@ jobs:
               echo "packing $name"
               mkdir -p "/tmp/ghpages/$name"
               cp "$proj/build/web"/game-* "/tmp/ghpages/$name/" 2>/dev/null || true
+              # stable entry point: game.html fetches builds.json (no-cache) and redirects to newest
+              cp "$proj/build/web/game.html" "/tmp/ghpages/$name/game.html" 2>/dev/null || true
+              newest_id="$(ls -1 "$proj/build/web"/game-*.html 2>/dev/null | sort -V | tail -1 | sed 's/.*game-\([0-9]*\)\.html/\1/' || true)"
+              printf '{"build": "%s"}\n' "$newest_id" > "/tmp/ghpages/$name/builds.json"
               # also copy any index.* companion files (icons, worklets) except .import
               for f in "$proj/build/web"/index.*; do
                 [ -e "$f" ] || continue
                 case "$(basename "$f")" in *.import) continue;; esac
                 cp "$f" "/tmp/ghpages/$name/"
               done
-              # Redirect index.html -> newest versioned entry (cache-proof)
-              newest="$(ls -1 "$proj/build/web"/game-*.html 2>/dev/null | sort -V | tail -1 || true)"
-              if [ -n "$newest" ]; then
-                bn="$(basename "$newest")"
-                printf '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=./%s"><link rel="canonical" href="./%s"></head><body><a href="./%s">Open game</a></body></html>\n' "$bn" "$bn" "$bn" > "/tmp/ghpages/$name/index.html"
-              fi
+              # index.html -> stable game.html (which resolves newest via builds.json)
+              printf '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=./game.html"></head><body><a href="./game.html">Open game</a></body></html>\n' > "/tmp/ghpages/$name/index.html" 
             fi
           done
           ls -la /tmp/ghpages
+
+          # root entry -> default project's stable game.html
+          if [ -f /tmp/ghpages/SampleGame/game.html ]; then
+            printf '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=./SampleGame/game.html"></head><body><a href="./SampleGame/game.html">Open game</a></body></html>\n' > /tmp/ghpages/index.html
+          fi
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
