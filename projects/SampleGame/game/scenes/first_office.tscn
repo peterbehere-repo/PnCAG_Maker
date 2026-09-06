@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3]
+[gd_scene load_steps=24 format=3]
 [ext_resource type="Texture2D" path="res://assets/concept_art/sample office scene.png" id="1_bg"]
 [ext_resource type="Script" path="res://scripts/first_office.gd" id="2_root"]
 [ext_resource type="Script" path="res://scripts/region_overlay.gd" id="3_overlay"]
@@ -8,11 +8,6 @@
 [ext_resource type="Texture2D" path="res://assets/art/desk_foreground.png" id="7_desk"]
 [ext_resource type="Texture2D" path="res://assets/sprites/pi/pi_walk_idle_sheet_v2_tinted.png" id="8_sheet"]
 [ext_resource type="Texture2D" path="res://assets/sprites/pi/pi_desk_sit_baked.png" id="9_sit"]
-[sub_resource type="AudioStreamOggVorbis" id="Music"]
-stream = ExtResource("5_music")
-loop = true
-volume_db = -18.0
-
 [sub_resource type="AtlasTexture" id="Pi0"]
 atlas = ExtResource("8_sheet")
 region = Rect2(0, 0, 112, 272)
@@ -86,7 +81,7 @@ animations = [{
 script = ExtResource("2_root")
 
 [node name="OfficeMusic" type="AudioStreamPlayer" parent="."]
-stream = SubResource("Music")
+stream = ExtResource("5_music")
 autoplay = true
 
 [node name="DeskForeground" type="Sprite2D" parent="."]
