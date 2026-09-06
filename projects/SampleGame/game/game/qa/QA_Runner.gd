@@ -14,17 +14,22 @@ var repeat := 3
 var _started := false
 var _frames := 0
 
+var _armed := false
+
 func _ready() -> void:
 	var qa_env := OS.get_environment("PNCAG_QA")
-	var qa_setting: bool = ProjectSettings.get_setting("game/debug/qa_mode", true)
+	var qa_setting: bool = ProjectSettings.get_setting("game/debug/qa_mode", false)
 	if qa_env != "1" and not qa_setting:
 		return
+	_armed = true
 	print("QA_Runner: armed (repeat=", repeat, ") scene=", MAIN_SCENE)
 
 func _process(_delta: float) -> void:
 	_frames += 1
 	var main: Node = get_tree().current_scene
 	# Wait for the main scene to be loaded and settled (or 120-frame cap)
+	if not _armed:
+		return
 	var ready := main != null
 	if _frames >= 120:
 		ready = true

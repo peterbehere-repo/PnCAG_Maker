@@ -5,6 +5,7 @@ extends Node2D
 ## must be hidden while seated - no layering math at runtime.
 
 const SIT_SPOT := Vector2(845, 745)      # walk target before sitting
+const START_SPOT := Vector2(180, 745)    # scene start: left side of office
 const KEYBOARD_RECT := Rect2(655, 460, 260, 90)  # scene-space keys area
 
 var _sitting := false
@@ -86,6 +87,7 @@ func _on_pi_arrived() -> void:
 
 func _ready() -> void:
 	pi.movement_finished.connect(_on_pi_arrived)
+	pi.global_position = START_SPOT
 	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 	status_label.text = "ROOM READY  //  LEFT CLICK TO INTERACT  //  RIGHT CLICK TO EXAMINE"
 

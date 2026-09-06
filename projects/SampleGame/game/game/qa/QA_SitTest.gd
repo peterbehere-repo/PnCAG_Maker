@@ -44,9 +44,26 @@ func _process(_delta: float) -> bool:
 				_assert(main.name == "FirstOffice", "scene booted")
 				_assert(main.get_node("Pi") != null, "PI present")
 				_assert(not main.get_node("DeskSitLayer").visible, "DeskSit hidden at boot")
-				_click(Vector2(785, 505))   # keyboard
+				print("  DEBUG start pos: ", main.get_node("Pi").global_position)
+				_assert(main.get_node("Pi").global_position.distance_to(Vector2(180, 745)) < 2.0, "PI starts left side (~180, 745)")
+				# WALK TEST: click far-right floor, verify he walks there
+				_click(Vector2(1200, 745))
+				_phase = "walk_test"
+				_t = 0
+		"walk_test":
+			_t += 1
+			var pi := main.get_node("Pi")
+			if _t == 2:
+				_assert(pi.animation == &"walk" or pi.is_playing(), "walk animation playing")
+				_assert(pi.flip_h == false, "facing right (no flip)")
+				_click(Vector2(785, 505))   # keyboard -> now walk to sit
 				_phase = "walking"
 				_t = 0
+			elif _t == 2:
+				_assert(pi.global_position.x > 181.0, "PI left start position (is walking)")
+			elif _t > 2000:
+				_assert(false, "walk test stalled")
+				return _done()
 		"walking":
 			_t += 1
 			if main.get_node("DeskSitLayer").visible:

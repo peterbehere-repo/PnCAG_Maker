@@ -240,7 +240,7 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="Pi" type="AnimatedSprite2D" parent="."]
-position = Vector2(704, 745)
+position = Vector2(180, 745)
 z_index = 6
 sprite_frames = SubResource("PiFrames")
 animation = &"idle"
