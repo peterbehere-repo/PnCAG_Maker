@@ -37,3 +37,5 @@ func _process(delta: float) -> void:
 	if office and office.has_node("Pi"):
 		var pi := office.get_node("Pi")
 		_log("tick pos=(%d,%d) vis=%s sit=%s" % [int(pi.global_position.x), int(pi.global_position.y), pi.visible, office.get_node("DeskSitLayer").visible])
+		var tex: Texture2D = pi.sprite_frames.get_frame_texture(&"idle", 0)
+		_log("tex %dx%d modulate=%s frame=%d" % [tex.get_width(), tex.get_height(), str(pi.modulate), pi.frame])
