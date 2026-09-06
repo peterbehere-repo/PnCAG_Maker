@@ -1,5 +1,5 @@
 [gd_scene load_steps=24 format=3]
-[ext_resource type="Texture2D" path="res://assets/concept_art/sample office scene.png" id="1_bg"]
+[ext_resource type="Texture2D" path="res://assets/concept_art/office v71 standing base.png" id="1_bg"]
 [ext_resource type="Script" path="res://scripts/first_office.gd" id="2_root"]
 [ext_resource type="Script" path="res://scripts/region_overlay.gd" id="3_overlay"]
 [ext_resource type="Script" path="res://addons/popochiu/engine/objects/hotspot/popochiu_hotspot.gd" id="4_hs"]
@@ -7,7 +7,7 @@
 [ext_resource type="Script" path="res://scripts/pi_idle.gd" id="6_pi"]
 [ext_resource type="Texture2D" path="res://assets/art/desk_foreground.png" id="7_desk"]
 [ext_resource type="Texture2D" path="res://assets/sprites/pi/pi_walk_idle_sheet_v2_tinted.png" id="8_sheet"]
-[ext_resource type="Texture2D" path="res://assets/sprites/pi/pi_desk_sit_baked.png" id="9_sit"]
+[ext_resource type="Texture2D" path="res://assets/concept_art/office v71 sit bake.png" id="9_sit"]
 [sub_resource type="AtlasTexture" id="Pi0"]
 atlas = ExtResource("8_sheet")
 region = Rect2(0, 0, 112, 272)
